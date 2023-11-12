@@ -1,12 +1,30 @@
 // server.js
 const express = require('express');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const path = require('path');
+const ejs = require('ejs-mate');
+require('dotenv').config();
+
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Smart Home Server!');
-});
+app.engine('ejs', ejs);
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+// Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: true }));
+
+// Routes
+app.use(require('./routes/login'));
+app.use(require('./routes/register'));
+app.use(require('./routes/index'));
+app.use(require('./routes/logout'));
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
