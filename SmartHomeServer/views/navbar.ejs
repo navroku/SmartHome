@@ -1,37 +1,18 @@
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="/styles/main.css">
-</head>
-<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-<nav id="navbar" class="">
-  <div class="nav-wrapper">
-    <!-- Navbar Logo -->
-    <div class="logo">
-      <!-- Logo Placeholder for Inlustration -->
-      <a href="#home"><i class="fa fa-angellist"></i> Logo</a>
+
+<nav>
+    <div class="navbar-left">
+      
     </div>
+    <div class="navbar-right">
+      <button>Add a Module</button>
+  
 
-    <!-- Navbar Links -->
-    <ul id="menu">
-      <li><a href="index.ejs">Home</a></li><!--
-   --><li><a href="register">Register</a></li><!--
-    </ul>
-  </div>
+      <% if (user.isAdmin === 1) { %>
+        <button>Register New User</button>
+      <% } %>
+  
+      <button>Log Out</button>
+    
+    </div>
 </nav>
-
-
-<!-- Menu Icon -->
-<div class="menuIcon">
-  <span class="icon icon-bars"></span>
-  <span class="icon icon-bars overlay"></span>
-</div>
-
-
-<div class="overlay-menu">
-  <ul id="menu">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#services">Services</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-</div>
+  
