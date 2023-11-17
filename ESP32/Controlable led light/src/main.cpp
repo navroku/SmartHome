@@ -1,10 +1,15 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
+const char* clientId = "weather_station"; // Change for each ESP32
 const char* ssid = "Velnciems";
 const char* password = "40972495";
-const char* mqttBroker = "192.168.0.183:1883";
-const char* clientId = "weather_station"; // Change for each ESP32
+
+const char* mqttBroker = "broker.hivemq.com";
+const int mqttPort = 1883;
+
+float currentTemperature = 25.5;  // Replace this with your actual temperature data
+float currentHumidity = 60.0;     // Replace this with your actual humidity data
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -30,10 +35,11 @@ void loop() {
   client.loop();
 
   // Publish ESP32 presence every 30 seconds
-  if (millis() - lastPublish > 10000) {
+  if (millis() - lastPublish > 5000) {
     publishPresence();
     lastPublish = millis();
   }
+  
 }
 
 void connectToWifi() {
@@ -48,6 +54,10 @@ void connectToWifi() {
 
 void connectToMqtt() {
   Serial.println("Connecting to MQTT broker...");
+  
+  // Set the MQTT broker's address and port
+  client.setServer(mqttBroker, mqttPort);
+
   while (!client.connected()) {
     if (client.connect(clientId)) {
       Serial.println("Connected to MQTT broker");
@@ -60,6 +70,6 @@ void connectToMqtt() {
 }
 
 void publishPresence() {
-  String payload = "{\"id\":\"" + String(clientId) + "\",\"ip\":\"" + WiFi.localIP().toString() + "\"}";
+  String payload = "{\"id\":\"" + String(clientId) + "\",\"ip\":\"" + WiFi.localIP().toString() + "\",\"temperature\":" + String(currentTemperature) + ",\"humidity\":" + String(currentHumidity) + "}";
   client.publish("esp32/presence", payload.c_str());
 }

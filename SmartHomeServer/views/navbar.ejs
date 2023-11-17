@@ -1,18 +1,17 @@
-
-<nav>
-    <div class="navbar-left">
-      
-    </div>
-    <div class="navbar-right">
-      <button>Add a Module</button>
-  
-
-      <% if (user.isAdmin === 1) { %>
-        <button>Register New User</button>
-      <% } %>
-  
-      <button>Log Out</button>
-    
-    </div>
+<!-- views/navbar.ejs -->
+<nav class="navbar">
+  <div class="brand-title">Welcome home, <%= user.username %></div>
+  <a href="#" class="toggle-button">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </a>
+  <div class="navbar-links">
+    <ul>
+      <li><button id="showDeviceList">Show ESP32 Devices</button></li>
+      <li><a href="/register">Register</a></li>
+      <li><a href="/logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log out</a></li>
+    </ul>
+  </div>
+  <form id="logout-form" action="/logout" method="post" style="display: none;"></form>
 </nav>
-  
