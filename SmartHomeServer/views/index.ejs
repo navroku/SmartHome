@@ -1,52 +1,56 @@
-<!-- views/index.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Home</title>
-  <link rel="stylesheet" href="/styles/main.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
-  <script src="/scripts/script.js"></script>
-  <script src="/scripts/devicelistScript.js"></script>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/styles/main.css">
+  </head>
 <body>
-  <%- include ('navbar.ejs') %>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark container-fluid border rounded-3 bg-primary">
+      <div class="navbar-brand ps-3">Welcome home</div>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse " id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+              <!-- Add your navigation links here -->
+              <li class="nav-item">
+                  <a class="nav-link" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="#">About</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="#">Contact</a>
+              </li>
+          </ul>
+      </div>
+  </nav>
 
-  <div class="dashboard-section">
-    <!-- Your existing dashboard content here -->
+  <!-- Main Container Box -->
+  <div class="container-fluid mt-4 mx-auto border w-75 rounded shadow-sm">
+      <!-- Your content goes here -->
+      <h1>Welcome to Your Dashboard</h1>
+      <p>This is a simple example. Customize it according to your needs.</p>
   </div>
 
+  <!-- Include Bootstrap JS and Popper.js -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"
+      integrity="sha384-XdXb8vTZN9RqKofZ5zZj6aLeM2JK7Z9j3gpXro/1qU2/XJ2w+ta1yFLX7meYIpx1"
+      crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+      integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+Wy2n5uZ/dItQykM6Uo0ByxZl5dEJYRYNDd"
+      crossorigin="anonymous"></script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <!-- The modal dialog for ESP32 devices -->
-  <div id="deviceListModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeDeviceList">&times;</span>
-      <div id="esp32ListContainer"></div>
-    </div>
-  </div>
 </body>
+
 </html>
