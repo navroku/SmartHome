@@ -54,7 +54,7 @@
 
   <nav class="navbar navbar-expand-lg navbar-dark gradient-color rounded-3 border-radius shadow-lg m-4">
     <div class="container-fluid">
-      <a class="navbar-brand">Welcome home, <%= user.username %></a>
+      <a class="navbar-brand">Welcome home <strong><%= user.username %></strong></a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -70,17 +70,31 @@
   </nav>
   <!-- Main Container Box -->
   <section class="gradient-color m-4 border-radius shadow-lg border-0 p-4">
-      <!-- Your content goes here -->
-      <div class="card gradient-color shadow-lg border-radius" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-          <a href="#" class="card-link">Card link</a>
-          <a href="#" class="card-link">Another link</a>
+    <div class="row">
+      <!-- First Card -->
+      <!-- <div class="col-md-4 mb-4">
+        <div class="card gradient-color shadow-lg border-radius">
+          <div class="card-body">
+            <h5 class="card-title">Card title</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <a href="#" class="card-link">Card link</a>
+            <a href="#" class="card-link">Another link</a>
+          </div>
         </div>
+      </div> -->
+  
+      <!-- Second Card (Dynamically added) -->
+      <div class="col-sm-3 mb-4">
+        <!-- Include your dynamically generated card content here -->
+        <%- include('cards/temperature_humidity.ejs') %>
       </div>
-  </div>
+  
+      <!-- Add more cards as needed -->
+  
+    </div>
+  </section>
+  
 
   <!-- Include Bootstrap JS and Popper.js -->
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>

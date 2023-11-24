@@ -1,0 +1,59 @@
+<!-- Add this script tag to include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<div class="card gradient-color shadow-lg border-radius" style="min-width: ;">
+    <div class="card-body">
+      <h5 class="card-title">Temperature and Humidity Charts</h5>
+      <!-- Canvas for Temperature Chart -->
+      <canvas id="temperatureChart" width="400" height="200"></canvas>
+      <!-- Canvas for Humidity Chart -->
+      <canvas id="humidityChart" width="400" height="200"></canvas>
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    </div>
+    </div>
+    
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Sample data for temperature and humidity
+      const temperatureData = {
+        labels: ['17:30', '18:30', '19:30', '20:30', '21:30', '22:30'],
+        datasets: [{
+          label: 'Temperature (°C)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1,
+          data: [12, 15, 18, 22, 25, 28],
+        }],
+      };
+  
+      const humidityData = {
+        labels: ['17:30', '18:30', '19:30', '20:30', '21:30', '22:30'],
+        datasets: [{
+          label: 'Humidity (%)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+          data: [60, 55, 50, 45, 40, 35],
+        }],
+      };
+  
+      // Get the canvas elements
+      const temperatureCanvas = document.getElementById('temperatureChart').getContext('2d');
+      const humidityCanvas = document.getElementById('humidityChart').getContext('2d');
+  
+      // Create temperature chart
+      new Chart(temperatureCanvas, {
+        type: 'line',
+        data: temperatureData,
+      });
+  
+      // Create humidity chart
+      new Chart(humidityCanvas, {
+        type: 'line',
+        data: humidityData,
+      });
+    });
+  </script>
+  
