@@ -1,37 +1,18 @@
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="/styles/main.css">
-</head>
-<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-<nav id="navbar" class="">
-  <div class="nav-wrapper">
-    <!-- Navbar Logo -->
-    <div class="logo">
-      <!-- Logo Placeholder for Inlustration -->
-      <a href="#home"><i class="fa fa-angellist"></i> Logo</a>
-    </div>
-
-    <!-- Navbar Links -->
-    <ul id="menu">
-      <li><a href="index.ejs">Home</a></li><!--
-   --><li><a href="register">Register</a></li><!--
+<!-- views/navbar.ejs -->
+<script src="/scripts/devicelistScript.js"></script>
+<nav class="navbar">
+  <div class="brand-title">Welcome home, <%= user.username %></div>
+  <a href="#" class="toggle-button">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </a>
+  <div class="navbar-links">
+    <ul>
+      <li><button id="showDeviceList">Show ESP32 Devices</button></li>
+      <li><a href="/register">Register</a></li>
+      <li><a href="/logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log out</a></li>
     </ul>
   </div>
+  <form id="logout-form" action="/logout" method="post" style="display: none;"></form>
 </nav>
-
-
-<!-- Menu Icon -->
-<div class="menuIcon">
-  <span class="icon icon-bars"></span>
-  <span class="icon icon-bars overlay"></span>
-</div>
-
-
-<div class="overlay-menu">
-  <ul id="menu">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#services">Services</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-</div>
