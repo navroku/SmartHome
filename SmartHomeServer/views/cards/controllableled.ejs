@@ -1,0 +1,45 @@
+<!-- Add this link to include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- Add this link to include Spectrum Color Picker CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+
+<!-- Add this script tag to include Spectrum Color Picker JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+
+
+
+
+
+<div class="card gradient-color shadow-lg border-radius">
+    <div class="card-body">
+        <h5 class="card-title">LED Color Picker</h5>
+        <input type="text" id="colorPicker" />
+        <p class="card-text">Select a color to control LED lights.</p>
+        <a href="#" class="card-link">Apply Color</a>
+        <a href="#" class="card-link">Cancel</a>
+    </div>
+</div>
+
+
+
+
+
+<script>
+    function getPickerWidth() {
+        const root = document.querySelector(':root');
+        const rootStyle = getComputedStyle(root);
+        return Number(rootStyle.getPropertyValue('--picker-width').replace("px", ""));
+    }
+
+    const pickerWidth = getPickerWidth();
+    function getPickerWidth() {
+    const root = document.querySelector(':root');
+    const rootStyle = getComputedStyle(root);
+    return Number(rootStyle.getPropertyValue('--picker-width').replace("px", ""));
+}
+
+    const pickerWidth = getPickerWidth();
+</script>
+
+
