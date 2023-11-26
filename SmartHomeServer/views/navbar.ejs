@@ -1,18 +1,67 @@
 <!-- views/navbar.ejs -->
-<script src="/scripts/devicelistScript.js"></script>
-<nav class="navbar">
-  <div class="brand-title">Welcome home, <%= user.username %></div>
-  <a href="#" class="toggle-button">
-    <span class="bar"></span>
-    <span class="bar"></span>
-    <span class="bar"></span>
-  </a>
-  <div class="navbar-links">
-    <ul>
-      <li><button id="showDeviceList">Show ESP32 Devices</button></li>
-      <li><a href="/register">Register</a></li>
-      <li><a href="/logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log out</a></li>
-    </ul>
+<style>
+  body{
+      color: #9b9ca7;
+      background-color: #0e0e23;
+      min-width: 320px;
+  }
+  .gradient-color{
+      background: #252954;
+      background: radial-gradient(
+      circle,
+      rgba(20, 24, 52, 1) 0%,
+      rgba(19, 22, 47, 1) 100%
+      );
+  }
+  .navbar-brand, .navbar-brand:hover{
+      color: #9b9ca7;
+      font-weight: lighter;
+      user-select: none;
+      border-bottom: 3px solid transparent;
+  }
+  .border-radius{
+      border-radius: 1rem;
+  }
+  .nav-link:hover{
+  /* background: #11132c;
+  border-bottom: 3px solid #4255d4; */
+  
+  }
+  .nav-link, .bi{
+      border-bottom: 3px solid transparent;
+      align-items: center;
+  }
+  .navbar-toggler,
+  .navbar-toggler:focus,
+  .navbar-toggler:active,
+  .navbar-toggler-icon:focus {
+      outline: none;
+      border: none;
+      box-shadow: none;
+  }
+      /* Add your custom styles for card text color here */
+  .card-text {
+      color: #9b9ca7;
+  }
+  </style>
+<!-- Navigation Bar -->
+
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top gradient-color rounded-3 border-radius shadow-lg m-4">
+<div class="container-fluid">
+<a class="navbar-brand">Welcome home <strong><%= user.username %></strong></a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+  <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse  justify-content-end" id="navbarNavAltMarkup">
+  <div class="navbar-nav">
+    <a class="nav-link active" aria-current="page" href="#">Home</a>
+    <a class="nav-link" href="#">Features</a>
+    <a class="nav-link" href="/logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+      <i class="bi bi-box-arrow-right"></i> Log out
+    </a>
   </div>
-  <form id="logout-form" action="/logout" method="post" style="display: none;"></form>
+</div>
+</div>
+<form id="logout-form" action="/logout" method="post" style="display: none;"></form>
 </nav>
