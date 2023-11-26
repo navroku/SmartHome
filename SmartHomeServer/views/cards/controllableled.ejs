@@ -17,7 +17,7 @@
     <div class="card gradient-color shadow-lg border-radius card-text">
         <div class="card-body">
             <h5 class="card-title">Color Picker Control</h5>
-            <p style="min-width: 250px;">
+            <p>
                 <input id="color-block" type="text" value="#ffffff" data-wheelcolorpicker="" data-wcp-format="css" data-wcp-layout="block" data-wcp-cssclass="color-block" data-wcp-autoresize="false">
             </p>
             <p>
@@ -37,20 +37,20 @@
 </div>
 
 <style type="text/css">
-    .jQWCP-wWidget.jQWCP-block{
+    .jQWCP-wWidget.jQWCP-block.color-block{
         box-shadow: none;
-
     }
     .jQWCP-wWidget {
         border: none;
         box-shadow: none;
-        /* min-width: 200px; */
+
     }
     .color-block {
         box-sizing: border-box;
         background: none;
         border: none;
-        
+        max-width: 340px;
+        width: 100%;
     }
     .color-preview-box,
     .currently-set-color-box {
@@ -61,6 +61,7 @@
         padding: 2px;
         background-clip: content-box;
     }
+
 </style>
 
 <!-- controllableled.ejs -->
