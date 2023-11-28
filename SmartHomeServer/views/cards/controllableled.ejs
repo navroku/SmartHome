@@ -13,12 +13,12 @@
 
 <!-- controllableled.ejs -->
 
-<div class="col-auto mb-4">
-    <div class="card gradient-color shadow-lg border-radius card-text">
+<div class="col col-auto mb-4">
+    <div class="card gradient-color shadow-lg border-radius card-text h-100">
         <div class="card-body">
             <h5 class="card-title">Color Picker Control</h5>
             <p>
-                <input id="color-block" type="text" value="#ffffff" data-wheelcolorpicker="" data-wcp-format="css" data-wcp-layout="block" data-wcp-cssclass="color-block" data-wcp-autoresize="false">
+                <input id="color-block" type="text" value="#ffffff" data-wheelcolorpicker="" data-wcp-format="css" data-wcp-layout="block" data-wcp-cssclass="color-block" data-wcp-autoresize="true">
             </p>
             <p>
                 Selected color:
@@ -31,7 +31,7 @@
                 <span class="currently-set-color-box"></span>
                 <span class="currently-set-color-text"></span>
             </p>
-            <button id="setColorBtn" class="btn btn-primary">Set Color</button>
+            <button id="setColorBtn" class="btn btn-primary position-absolute bottom-0 mb-4">Set Color</button>
         </div>
     </div>
 </div>
@@ -40,17 +40,11 @@
     .jQWCP-wWidget.jQWCP-block.color-block{
         box-shadow: none;
     }
-    .jQWCP-wWidget {
-        border: none;
-        box-shadow: none;
-
-    }
     .color-block {
-        box-sizing: border-box;
         background: none;
         border: none;
-        max-width: 340px;
-        width: 100%;
+        overflow: hidden;
+        min-width: 220px;
     }
     .color-preview-box,
     .currently-set-color-box {
@@ -61,7 +55,10 @@
         padding: 2px;
         background-clip: content-box;
     }
-
+    .jQWCP-wWheel{
+        /* width: 250px;
+        height: 100px; */
+    }
 </style>
 
 <!-- controllableled.ejs -->
@@ -81,7 +78,6 @@
             var alpha = $(this).wheelColorPicker('color').a;
             $('.color-preview-box').css('background-color', color);
             $('.color-preview-text').text(color);
-            $('.color-preview-alpha').text(Math.round(alpha * 100) + '%');
         });
 
         // Set Color button click event
