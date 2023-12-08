@@ -1,12 +1,34 @@
+// controllable_led.js
+
 const express = require('express');
 const router = express.Router();
 const mqttClient = require('../mqttHandler');
 const socketIO = require('socket.io');
 
+let currentColor = { r: 255, g: 255, b: 255 };
+let io; // Socket.io instance
+
 router.use(express.json());
 
-let currentColor = { r: 0, g: 0, b: 0 };
-let io; // Socket.io instance
+// controllable_led.js
+mqttClient.mqttClient.subscribe('esp32/device/list');
+
+mqttClient.mqttClient.on('message', (topic, message) => {
+  if (topic === 'esp32/device/list') {
+    const data = JSON.parse(message.toString());
+    updateLedColor(data);
+  }
+});
+
+function updateLedColor(data) {
+  const color = data.color || { r: 0, g: 0, b: 0 };
+  currentColor = color;
+  console.log('Received controllable_led-update:', data);
+  // Emit the update to all connected clients using Socket.io
+  if (io) {
+    io.emit('controllable_led-update', { color });
+  }
+}
 
 router.post('/set-color', (req, res) => {
   const color = req.body.color || {};
@@ -29,28 +51,13 @@ router.get('/get-color', (req, res) => {
   res.json({ color: currentColor });
 });
 
-mqttClient.mqttClient.subscribe('esp32/device/list');
-
-mqttClient.mqttClient.on('message', (topic, message) => {
-  if (topic === 'esp32/device/list') {
-    const deviceInfo = JSON.parse(message.toString());
-    currentColor = deviceInfo.color;
-
-    // Emit the color update to all connected clients using Socket.io
-    if (io) {
-      io.emit('color-update', { color: currentColor });
-    }
-  }
-});
-
-// Export a function to initialize Socket.io with the server
 router.initializeSocketIO = function (httpServer) {
-  io = socketIO(httpServer);
+  io = socketIO(httpServer);  // Use the httpServer instance here
   io.on('connection', (socket) => {
     console.log('Socket.io connection established.');
 
-    // Send the current color to the newly connected client
-    socket.emit('color-update', { color: currentColor });
+    // Send the current LED color to the new client upon connection
+    socket.emit('controllable_led-update', { color: currentColor });
   });
 };
 

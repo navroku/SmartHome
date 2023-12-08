@@ -1,60 +1,101 @@
-<!-- Add this script tag to include Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
-<div class="col-md-4 mb-4">
-  <div class="card gradient-color shadow-lg border-radius card-text" style="">
-      <div class="card-body">
-        <h5 class="card-title">Temperature and Humidity Charts</h5>
-        <!-- Canvas for Temperature Chart -->
-        <canvas id="temperatureChart" width="400" height="200"></canvas>
-        <!-- Canvas for Humidity Chart -->
-        <canvas id="humidityChart" width="400" height="200"></canvas>
-        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-      </div>
+<!-- Include JustGage library and Raphael library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.4/raphael-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.9/justgage.min.js"></script>
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<!-- Your Express.js Smart Home Dashboard HTML Template -->
+<div class="col col-md-4 mb-4">
+  <div class="card gradient-color shadow-lg border-radius card-text">
+    <div class="card-body">
+      <h5 class="card-title">Environment Information</h5>
+      <div id="temperatureGauge"></div>
+      <div id="humidityGauge"></div>
+      <p class="card-text">
+        <strong>Temperature:</strong> <span id="temperatureValue">--</span> °C<br>
+        <strong>Humidity:</strong> <span id="humidityValue">--</span> %
+      </p>
+    </div>
   </div>
 </div>
+
+<!-- Include script for updating gauges -->
+<script>
+  // Function to update temperature gauge
+  function updateTemperatureGauge(value) {
+    temperatureGauge.refresh(value);
+    document.getElementById("temperatureValue").innerText = value.toFixed(2);
+  }
+
+  // Function to update humidity gauge
+  function updateHumidityGauge(value) {
+    humidityGauge.refresh(value);
+    document.getElementById("humidityValue").innerText = value.toFixed(2);
+  }
+
+  // Initialize temperature gauge
+  var temperatureGauge = new JustGage({
+    id: "temperatureGauge",
+    value: 0,
+    min: -20,
+    max: 40,
+    title: "Temperature",
+    gaugeWidthScale: 0.5,
+    counter: true,
+    relativeGaugeSize: true,
+    levelColors: ["#990000"],
+    valueFontColor: "#9b9ca7", // Change this to your desired text color
+    valueFont: "10px Arial",
+    symbol: "°C", // Add the unit symbol
+  });
+
+  // Initialize humidity gauge
+  var humidityGauge = new JustGage({
+    id: "humidityGauge",
+    value: 0,
+    min: 0,
+    max: 100,
+    title: "Humidity",
+    gaugeWidthScale: 0.5,
+    counter: true,
+    relativeGaugeSize: true,
+    levelColors: ["#009999"],
+    valueFontColor: "#9b9ca7", // Change this to your desired text color
+    valueFont: "10px Arial",
+    symbol: "%", // Add the unit symbol
+  });
   
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Sample data for temperature and humidity
-      const temperatureData = {
-        labels: ['17:30', '18:30', '19:30', '20:30', '21:30', '22:30'],
-        datasets: [{
-          label: 'Temperature (°C)',
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          borderWidth: 1,
-          data: [12, 15, 18, 22, 25, 28],
-        }],
-      };
-  
-      const humidityData = {
-        labels: ['17:30', '18:30', '19:30', '20:30', '21:30', '22:30'],
-        datasets: [{
-          label: 'Humidity (%)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 1,
-          data: [60, 55, 50, 45, 40, 35],
-        }],
-      };
-  
-      // Get the canvas elements
-      const temperatureCanvas = document.getElementById('temperatureChart').getContext('2d');
-      const humidityCanvas = document.getElementById('humidityChart').getContext('2d');
-  
-      // Create temperature chart
-      new Chart(temperatureCanvas, {
-        type: 'line',
-        data: temperatureData,
-      });
-  
-      // Create humidity chart
-      new Chart(humidityCanvas, {
-        type: 'line',
-        data: humidityData,
-      });
-    });
-  </script>
-  
+  // Socket.io connection to receive MQTT data
+  const socket = io();
+
+  socket.on('temperature_humidity-update', function (data) {
+    
+    // Check if the IP address matches the expected value
+    const expectedIpAddress = "192.168.0.69";  // Change this to your desired IP
+    if (data.ip === expectedIpAddress) {
+      console.log('Received temperature_humidity update:', data);
+      updateEnvironmentInfo(data);
+    }
+  });
+
+  function updateEnvironmentInfo(data) {
+    // Implement logic to update the gauges with the received data
+    const temperature = data.temperature || 0;
+    const humidity = data.humidity || 0;
+
+    // Example usage
+    updateTemperatureGauge(temperature);
+    updateHumidityGauge(humidity);
+  }
+
+  // Function to update temperature gauge
+  function updateTemperatureGauge(value) {
+    temperatureGauge.refresh(value);
+    document.getElementById("temperatureValue").innerText = value.toFixed(2);
+  }
+
+  // Function to update humidity gauge
+  function updateHumidityGauge(value) {
+    humidityGauge.refresh(value);
+    document.getElementById("humidityValue").innerText = value.toFixed(2);
+  }
+
+</script>

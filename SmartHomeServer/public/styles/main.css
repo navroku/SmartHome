@@ -41,3 +41,16 @@ border-bottom: 3px solid #4255d4; */
 .card-text {
     color: #9b9ca7;
 }
+.col {
+    min-width: 302px;
+    min-height: 446px;
+    max-width: 320px;
+}
+.card-body {
+    min-height: 446px;
+    height: fit-content;
+}
+.card {
+    height: fit-content;
+
+}

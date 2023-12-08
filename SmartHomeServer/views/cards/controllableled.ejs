@@ -1,258 +1,147 @@
-<!-- Other head content -->
+<!-- controllableled.ejs -->
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 <!-- jquery.wheelcolorpicker.js -->
-<link rel="stylesheet" href="styles/wheelcolorpicker.dark.css">
+<link rel="stylesheet" href="styles/wheelcolorpicker.dark.css" />
 <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 <script src="scripts/jquery.wheelcolorpicker.js"></script>
 
-<!-- controllableled.ejs -->
-
-<!-- controllableled.ejs -->
-
 <div class="col col-auto mb-4">
-    <div class="card gradient-color shadow-lg border-radius card-text h-100">
-        <div class="card-body">
-            <h5 class="card-title">Color Picker Control</h5>
-            <p>
-                <input id="color-block" type="text" value="#ffffff" data-wheelcolorpicker="" data-wcp-format="rgb" data-wcp-layout="block" data-wcp-cssclass="color-block" data-wcp-autoresize="true">
-            </p>
-            <p>
-                Selected color:
-                <span class="color-preview-box"></span>
-                <span class="color-preview-text"></span>
-                <span class="color-preview-alpha"></span>
-            </p>
-            <p>
-                Currently set color:
-                <span class="currently-set-color-box"></span>
-                <span class="currently-set-color-text"></span>
-            </p>
-            <p class="d-flex justify-content-end">
-                <button id="editColorsBtn" class="btn btn-link-style">Edit</button>
-            </p>
-            <div id="favoriteColors" class="d-flex flex-wrap"></div>
-            <button id="addColorBtn" class="btn btn-success" style="display:none;">Add Color</button>
-            <button id="setColorBtn" class="btn btn-primary position-absolute bottom-0 mb-4">Set Color</button>
-            <button id="cancelColorsBtn" class="btn btn-link" style="display:none;">Cancel</button>
-            <button id="saveColorsBtn" class="btn btn-primary" style="display:none;">Save</button>
-        </div>
+  <div class="card gradient-color shadow-lg border-radius card-text h-100">
+    <div class="card-body">
+      <h5 class="card-title">Color Picker Control</h5>
+      <p>
+        <input
+          id="color-block"
+          type="text"
+          value="#ffffff"
+          data-wheelcolorpicker=""
+          data-wcp-format="rgb"
+          data-wcp-layout="block"
+          data-wcp-cssclass="color-block"
+          data-wcp-autoresize="false"
+        />
+      </p>
+      <p class="user-select-none">
+        Selected color:
+        <span class="color-preview-box"></span>
+        <span class="color-preview-text"></span>
+        <span class="color-preview-alpha"></span>
+      </p>
+      <p class="user-select-none">
+        Currently set color:
+        <span class="currently-set-color-box"></span>
+        <span class="currently-set-color-text"></span>
+      </p>
+      <p class="d-flex justify-content-end">
+        <button
+          id="setColorBtn"
+          class="btn btn-primary bottom-0 mb-4"
+        >
+          Set Color
+        </button>
+      </p>
     </div>
+  </div>
 </div>
 
 <style type="text/css">
-    .favorite-color-square {
-        width: 40px;
-        height: 40px;
-        margin: 4px;
-        cursor: pointer;
-        position: relative;
-    }
-    .jQWCP-wWidget.jQWCP-block.color-block{
-        box-shadow: none;
-    }
-    .color-block {
-        background: none;
-        border: none;
-        overflow: hidden;
-        min-width: 220px;
-    }
-    .color-preview-box,
-    .currently-set-color-box {
-        display: inline-block;
-        width: .75em;
-        height: .75em;
-        vertical-align: middle;
-        padding: 2px;
-        background-clip: content-box;
-    }
-    .jQWCP-wWheel{
-        /* width: 250px;
-        height: 100px; */
-    }
-    .btn-link-style {
-        color: #007bff;
-        text-decoration: underline;
-        cursor: pointer;
-        background-color: transparent;
-        border: none;
-        padding: 0;
-        text-decoration: none;
-    }
+  .jQWCP-wWidget.jQWCP-block.color-block {
+    box-shadow: none;
+  }
+  .color-block {
+    background: none;
+    border: none;
+    overflow: hidden;
+    /* min-width: 220px; */
+  }
+  .color-preview-box,
+  .currently-set-color-box {
+    display: inline-block;
+    width: 0.75em;
+    height: 0.75em;
+    vertical-align: middle;
+    padding: 2px;
+    background-clip: content-box;
+  }
+  .jQWCP-wWheel {
+    display: flex;
+  }
+  .btn-link-style {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    text-decoration: none;
+  }
 </style>
 
 <script type="text/javascript">
-    $(function () {
-        const socket = io();
-        function sendColorToESP32(color) {
-            const ipAddress = "192.168.0.195";
-            const rgbValues = color.substring(4, color.length - 1).split(',').map(value => parseInt(value.trim(), 10));
-            const message = {
-                color: {
-                    r: rgbValues[0],
-                    g: rgbValues[1],
-                    b: rgbValues[2]
-                },
-                ip: ipAddress
-            };
-
-            console.log('Generated Message:', message);
-
-            $.ajax({
-                type: 'POST',
-                url: '/devices/controllable-led/set-color',
-                contentType: 'application/json',
-                data: JSON.stringify(message),
-                success: function (response) {
-                    console.log(response);
-                },
-                error: function (error) {
-                    console.error(error);
-                }
-            });
-        }
-
-        socket.on('color-update', function (data) {
-            console.log('Received color update:', data.color);
-            updateCurrentlySetColor(data.color);
-        });
-
-        $('#color-block').on('colorchange', function () {
-            const color = $(this).wheelColorPicker('value');
-            $('.color-preview-box').css('background-color', color);
-            $('.color-preview-text').text(color);
-        });
-
-        $('#setColorBtn').on('click', function () {
-            const selectedColor = $('#color-block').wheelColorPicker('value');
-            console.log('Selected Color:', selectedColor);
-            sendColorToESP32(selectedColor);
-        });
-
-        function updateCurrentlySetColor(color) {
-            const rgbString = `rgb(${color.r}, ${color.g}, ${color.b})`;
-            $('.currently-set-color-box').css('background-color', rgbString);
-            $('.currently-set-color-text').text(rgbString);
-        }
-
-        const isEditing = {
-            value: false
-        };
-        const selectedColors = new Set();
-
-        function initFavoriteColors(colors) {
-            $('#favoriteColors').empty();
-            colors.forEach(addFavoriteColor);
-        }
-
-        $('#favoriteColors').on('click', '.favorite-color-square', function() {
-            if (isEditing.value) {
-                toggleColorSelection($(this));
-            } else {
-                const clickedColor = $(this).css('background-color');
-                sendColorToESP32(clickedColor);
-                console.log('Clicked Color:', clickedColor);
-            }
-        });
-        function addFavoriteColor(color, opacity = 1) {
-            const $square = $('<div class="favorite-color-square"></div>').css('background-color', color).css('opacity', opacity);
-            $('#favoriteColors').append($square);
-        }
-
-        function toggleColorSelection($square) {
-            const color = $square.css('background-color');
-
-            if (!selectedColors.has(color)) {
-                selectedColors.add(color);
-            } else {
-                selectedColors.delete(color);
-            }
-
-            // Set the opacity based on the selection
-            setSquareOpacity($square, selectedColors.has(color) ? 0.5 : 1);
-        }
-
-        function setSquareOpacity($square, opacity) {
-            $square.css('opacity', opacity);
-        }
-
-        function updateColorSquaresOpacity(opacity) {
-            $('.favorite-color-square').css('opacity', opacity);
-        }
-
-        function isAnyColorSelected() {
-            return selectedColors.size > 0;
-        }
-
-        function isAnyColorAdded() {
-            return $('#favoriteColors').children().length > 0;
-        }
-
-        function updateSaveButtonState() {
-            const isSaveButtonDisabled = !(isAnyColorSelected() || isAnyColorAdded());
-            $('#saveColorsBtn').prop('disabled', isSaveButtonDisabled);
-        }
-        $('#addColorBtn').click(() => {
-            if (selectedColors.size < 8) {
-                const newColor = $('#color-block').wheelColorPicker('value');
-                selectedColors.add(newColor);
-                addFavoriteColor(newColor);
-            }
-            if (selectedColors.size === 8) {
-                $('#addColorBtn').hide();
-            }
-
-            // Update the state of the Save button
-            updateSaveButtonState();
-        });
-
-        $('#editColorsBtn').click(() => {
-            isEditing.value = true;
-            $('#editColorsBtn').hide();
-            $('#addColorBtn').show();
-            updateColorSquaresOpacity(1); // Set opacity to 50% when entering edit mode
-            $('#cancelColorsBtn, #saveColorsBtn').show();
-
-            // Update the state of the Save button
-            updateSaveButtonState();
-        });
-
-        $('#cancelColorsBtn').click(() => {
-            isEditing.value = false;
-            $('#editColorsBtn').show();
-            $('#addColorBtn').hide();
-            updateColorSquaresOpacity(1); // Set opacity to 100% when canceling edit mode
-            $('#cancelColorsBtn, #saveColorsBtn').hide();
-            selectedColors.clear();
-
-            // Update the state of the Save button
-            updateSaveButtonState();
-        });
-
-        $('#saveColorsBtn').click(() => {
-            isEditing.value = false;
-            $('#editColorsBtn').show();
-            $('#addColorBtn').hide();
-            updateColorSquaresOpacity(1); // Set opacity to 100% when saving
-            $('#cancelColorsBtn, #saveColorsBtn').hide();
-
-            // Delete selected colors from the list
-            selectedColors.forEach(color => {
-                $(`.favorite-color-square[style*="background-color: ${color}"]`).remove();
-            });
-
-            // TODO: Send the updated list of favorite colors to the server
-            console.log('Updated Favorite Colors:', Array.from($('.favorite-color-square').map(function() {
-                return $(this).css('background-color');
-            })));
-
-            // Clear the set for the next edit session
-            selectedColors.clear();
-
-            // Update the state of the Save button
-            updateSaveButtonState();
-        });
+  $(function () {
+    const socket = io();
+  
+    function sendColorToESP32(color) {
+      const ipAddress = "192.168.0.195";
+      const rgbValues = color
+        .substring(4, color.length - 1)
+        .split(",")
+        .map((value) => parseInt(value.trim(), 10));
+  
+      const message = {
+        color: {
+          r: rgbValues[0],
+          g: rgbValues[1],
+          b: rgbValues[2],
+        },
+        ip: ipAddress,
+      };
+  
+      console.log("Generated Message:", message);
+  
+      $.ajax({
+        type: "POST",
+        url: "/devices/controllable-led/set-color",
+        contentType: "application/json",
+        data: JSON.stringify(message),
+        success: function (response) {
+          console.log(response);
+        },
+        error: function (error) {
+          console.error(error);
+        },
+      });
+    }
+  
+    // Initial update with the currently set color
+    socket.on('controllable_led-update', function (data) {
+      const color = data.color;
+      
+      // Log the received data
+      console.log('Received controllable_led-update:', data);
+  
+      // Update currently set color
+      $(".currently-set-color-box").css("background-color", `rgb(${color.r}, ${color.g}, ${color.b})`);
+      $(".currently-set-color-text").text(`rgb(${color.r}, ${color.g}, ${color.b})`);
     });
-</script>
+  
+    $("#color-block").on("colorchange", function () {
+      const color = $(this).wheelColorPicker("value");
+      
+      // Update preview color
+      $(".color-preview-box").css("background-color", color);
+      $(".color-preview-text").text(color);
+    });
+  
+    $("#setColorBtn").on("click", function () {
+      const selectedColor = $("#color-block").wheelColorPicker("value");
+      console.log("Selected Color:", selectedColor);
+      sendColorToESP32(selectedColor);
+    });
+  });
+  
+  </script>
+  
