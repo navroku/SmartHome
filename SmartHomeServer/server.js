@@ -6,10 +6,10 @@ const path = require('path');
 const ejs = require('ejs-mate');
 const http = require('http');
 const mqttHandler = require('./routes/mqttHandler');
-const controllableLedRouter = require('./routes/devices/controllable_led');
-const deviceListRouter = require('./routes/devices/device_list');
+const deviceListRouter = require('./routes/deviceList');
 const temperatureHumidityRouter = require('./routes/devices/temperature_humidity');
-const socketIO = require('socket.io');
+const controllableLedRouter = require('./routes/devices/controllable_led');
+const socketIOHandler = require('./routes/socketioHandler');
 require('dotenv').config();
 
 const app = express();
@@ -30,19 +30,20 @@ app.use(require('./routes/login'));
 app.use(require('./routes/register'));
 app.use(require('./routes/index'));
 app.use(require('./routes/logout'));
-// Use the MQTT handler for all routes in the devices folder
-app.use('/devices/controllable-led', controllableLedRouter);
-app.use('/devices/device-list', deviceListRouter);
-app.use('/devices/temperature_humidity', temperatureHumidityRouter);
+// Mount the deviceListRouter at the specified path
+app.use('/devices', deviceListRouter);
 
 // Start HTTP server
 const server = http.createServer(app);
-const io = socketIO(server);
 
-// Initialize Socket.io for the controllable LED router
-controllableLedRouter.initializeSocketIO(server);
-temperatureHumidityRouter.initializeSocketIO(server);
+// Initialize Socket.io for the controllable LED and temperature/humidity routers
+socketIOHandler.initializeSocketIO(server);
 
+
+// Use the MQTT handler for all routes in the devices folder
+app.use('/devices/controllable-led', controllableLedRouter);
+app.use('/device-list', deviceListRouter);
+app.use('/devices/temperature_humidity', temperatureHumidityRouter);
 
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

@@ -15,8 +15,12 @@
 <body>
   <!-- Navigation Bar -->
   <%- include ('navbar.ejs') %>
+  <!-- Include the device list modal -->
+  
   <!-- Main Container Box -->
   <section class="gradient-color m-4 border-radius shadow-lg border-0 p-4">
+    <%- include ('deviceList.ejs') %>
+    <%- include ('register.ejs') %>
     <div class="row">
       <!-- First Card -->
       <!-- <div class="col-md-4 mb-4">
@@ -37,7 +41,7 @@
         <%- include('cards/temperature_humidity.ejs') %>
       
         <!-- Include your dynamically generated card content here -->
-        <%- include('cards/controllableled.ejs') %>
+        
         <%- include('cards/soilmoisture.ejs') %>
       <!-- Add more cards as needed -->
   
@@ -48,7 +52,11 @@
   <!-- Include Bootstrap JS and Popper.js -->
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
-
+  
+  <script>
+    // Initialize Socket.io connection
+    const socket = io();
+  </script>
 </body>
 
 </html>

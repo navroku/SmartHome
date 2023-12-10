@@ -1,9 +1,8 @@
 // temperature_humidity.js
-
 const express = require('express');
 const router = express.Router();
 const mqttClient = require('../mqttHandler');
-const socketIO = require('socket.io');
+const socketIOHandler = require('../socketioHandler');
 
 let latestEnvironmentInfo = {}; // Store the latest environment information
 
@@ -24,30 +23,19 @@ function updateEnvironmentInfo(data) {
   const ip = data.ip;
 
   // Update the latest environment information
-  latestEnvironmentInfo[ip] = { temperature, humidity };
+  latestEnvironmentInfo[ip] = { ip, temperature, humidity };
 
   // Emit the update to all connected clients using Socket.io
-  if (io) {
-    io.emit('temperature_humidity-update', { ip, temperature, humidity });
-  }
+  socketIOHandler.emitTemperatureHumidityUpdate({
+    ip,
+    temperature,
+    humidity,
+  });
 }
 
 // Export a function to initialize Socket.io with the server
 router.initializeSocketIO = function (httpServer) {
-  io = socketIO(httpServer);
-  io.on('connection', (socket) => {
-    console.log('Socket.io connection established.');
-
-    // Send the latest environment information to the newly connected client
-    for (const ip in latestEnvironmentInfo) {
-      if (latestEnvironmentInfo.hasOwnProperty(ip)) {
-        socket.emit('temperature_humidity-update', {
-          ip,
-          ...latestEnvironmentInfo[ip],
-        });
-      }
-    }
-  });
+  socketIOHandler.initializeSocketIO(httpServer);
 };
 
 module.exports = router;

@@ -1,34 +1,12 @@
 // controllable_led.js
-
 const express = require('express');
 const router = express.Router();
 const mqttClient = require('../mqttHandler');
-const socketIO = require('socket.io');
+const socketIOHandler = require('../socketioHandler');
 
-let currentColor = { r: 255, g: 255, b: 255 };
-let io; // Socket.io instance
+let currentColors = {}; // Store the current color information for each IP
 
 router.use(express.json());
-
-// controllable_led.js
-mqttClient.mqttClient.subscribe('esp32/device/list');
-
-mqttClient.mqttClient.on('message', (topic, message) => {
-  if (topic === 'esp32/device/list') {
-    const data = JSON.parse(message.toString());
-    updateLedColor(data);
-  }
-});
-
-function updateLedColor(data) {
-  const color = data.color || { r: 0, g: 0, b: 0 };
-  currentColor = color;
-  console.log('Received controllable_led-update:', data);
-  // Emit the update to all connected clients using Socket.io
-  if (io) {
-    io.emit('controllable_led-update', { color });
-  }
-}
 
 router.post('/set-color', (req, res) => {
   const color = req.body.color || {};
@@ -47,18 +25,38 @@ router.post('/set-color', (req, res) => {
   res.send('Color set successfully');
 });
 
-router.get('/get-color', (req, res) => {
-  res.json({ color: currentColor });
+mqttClient.mqttClient.subscribe('esp32/device/list');
+
+mqttClient.mqttClient.on('message', (topic, message) => {
+  if (topic === 'esp32/device/list') {
+    const data = JSON.parse(message.toString());
+    updateColorInfo(data);
+  }
 });
 
-router.initializeSocketIO = function (httpServer) {
-  io = socketIO(httpServer);  // Use the httpServer instance here
-  io.on('connection', (socket) => {
-    console.log('Socket.io connection established.');
+function updateColorInfo(data) {
+  const ip = data.ip;
+  const color = data.color;
 
-    // Send the current LED color to the new client upon connection
-    socket.emit('controllable_led-update', { color: currentColor });
-  });
+  // Update the current color information for the specific IP
+  currentColors[ip] = { ip, color };
+  console.log('Current color:', currentColors);
+  
+  // Emit the update to all connected clients using Socket.io
+  socketIOHandler.emitColorUpdate(currentColors);
+}
+// Define a new endpoint for getting the latest color information
+router.get('/get-color', (req, res) => {
+  console.log('GET request received for color information:', currentColors);
+  // Return the latest color information stored in currentColors
+  res.json(currentColors);
+});
+// Export a function to initialize Socket.io with the server
+router.initializeSocketIO = function (httpServer) {
+  socketIOHandler.initializeSocketIO(httpServer);
+
+  // Send the latest color information to the newly connected client
+  socketIOHandler.emitColorUpdate(currentColors);
 };
 
 module.exports = router;

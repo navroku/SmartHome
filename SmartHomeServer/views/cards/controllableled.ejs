@@ -5,8 +5,9 @@
 
 <!-- jquery.wheelcolorpicker.js -->
 <link rel="stylesheet" href="styles/wheelcolorpicker.dark.css" />
-<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 <script src="scripts/jquery.wheelcolorpicker.js"></script>
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+
 
 <div class="col col-auto mb-4">
   <div class="card gradient-color shadow-lg border-radius card-text h-100">
@@ -31,14 +32,21 @@
         <span class="color-preview-alpha"></span>
       </p>
       <p class="user-select-none">
-        Currently set color:
+        Currently color:
         <span class="currently-set-color-box"></span>
         <span class="currently-set-color-text"></span>
+        <span class="currently-set-color-alpha"></span>
       </p>
-      <p class="d-flex justify-content-end">
+      <p class="d-flex justify-content-between">
+        <button
+          id="turnOffBtn"
+          class="btn btn-secondary mb-4"
+        >
+          Turn Off
+        </button>
         <button
           id="setColorBtn"
-          class="btn btn-primary bottom-0 mb-4"
+          class="btn btn-primary mb-4"
         >
           Set Color
         </button>
@@ -82,26 +90,77 @@
 
 <script type="text/javascript">
   $(function () {
+    // Get the IP address of the card from the data-ip attribute
+    // Declare cardIpAddress at a wider scope
+    let cardIpAddress;
     const socket = io();
-  
+
+    socket.on('connect', () => {
+      console.log('Socket.io connected');
+      cardIpAddress = document.querySelector('.card[data-ip="' + data.ip + '"]').getAttribute('data-ip');
+      // Make a GET request to retrieve the latest color information
+      $.get("/devices/controllable-led/get-color", function (data) {
+        console.log('Received color information from server:', data);
+        // Filter the data based on the cardIpAddress
+        const filteredData = data[cardIpAddress];
+        if (filteredData) {
+          colorUpdate(filteredData);
+        }
+      });
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Socket.io disconnected');
+    });
+
+    // Function to handle the 'color-update' event
+    function colorUpdate(data) {
+      // Get the IP address of the card from the data-ip attribute
+      const cardIpAddress = document.querySelector('.card[data-ip="' + data.ip + '"]').getAttribute('data-ip');
+      console
+      // Check if the received IP matches the expected IP
+      if (cardIpAddress === data.ip) {
+        const color = `rgb(${data.color.r}, ${data.color.g}, ${data.color.b})`;
+        updateColorPreview(color);
+      }
+    }
+    function updateColorPreview(color) {
+      // Your implementation of updating color preview goes here
+      // For example, you can update the background color of an element
+      $(".currently-set-color-box").css("background-color", color);
+      // Display RGB values
+      $(".currently-set-color-text").text(color);
+    }
+    socket.on('color-update', function (data) {
+      // Check if the data is an array
+      if (Array.isArray(data)) {
+        data.forEach(colorUpdate);
+      } else {
+        // Filter the data based on the cardIpAddress
+        const filteredData = data[cardIpAddress];
+        if (filteredData) {
+          colorUpdate(filteredData);
+        }
+      }
+    });
+
     function sendColorToESP32(color) {
-      const ipAddress = "192.168.0.195";
       const rgbValues = color
         .substring(4, color.length - 1)
         .split(",")
         .map((value) => parseInt(value.trim(), 10));
-  
+
       const message = {
         color: {
           r: rgbValues[0],
           g: rgbValues[1],
           b: rgbValues[2],
         },
-        ip: ipAddress,
+        ip: cardIpAddress,
       };
-  
+
       console.log("Generated Message:", message);
-  
+
       $.ajax({
         type: "POST",
         url: "/devices/controllable-led/set-color",
@@ -115,33 +174,37 @@
         },
       });
     }
-  
-    // Initial update with the currently set color
-    socket.on('controllable_led-update', function (data) {
-      const color = data.color;
-      
-      // Log the received data
-      console.log('Received controllable_led-update:', data);
-  
-      // Update currently set color
-      $(".currently-set-color-box").css("background-color", `rgb(${color.r}, ${color.g}, ${color.b})`);
-      $(".currently-set-color-text").text(`rgb(${color.r}, ${color.g}, ${color.b})`);
+
+    // Turn off button event
+    $("#turnOffBtn").on("click", function () {
+      const offColor = "rgb(0, 0, 0)";
+      $(".color-preview-box").css("background-color", offColor);
+      $(".color-preview-text").text(offColor);
+      sendColorToESP32(offColor);
     });
-  
+
     $("#color-block").on("colorchange", function () {
       const color = $(this).wheelColorPicker("value");
-      
+
       // Update preview color
       $(".color-preview-box").css("background-color", color);
-      $(".color-preview-text").text(color);
+
+      // Format RGB values with spaces
+      const rgbValues = color
+        .substring(4, color.length - 1)
+        .split(",")
+        .map((value) => parseInt(value.trim(), 10));
+
+      const formattedColorText = `rgb(${rgbValues.join(', ')})`;
+      $(".color-preview-text").text(formattedColorText);
     });
-  
+
     $("#setColorBtn").on("click", function () {
       const selectedColor = $("#color-block").wheelColorPicker("value");
       console.log("Selected Color:", selectedColor);
       sendColorToESP32(selectedColor);
     });
+    // Set the initial color of the color picker to white (rgb(255, 255, 255))
+    $("#color-block").wheelColorPicker("value", "rgb(255, 255, 255)");
   });
-  
-  </script>
-  
+</script>

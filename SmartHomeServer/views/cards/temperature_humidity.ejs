@@ -2,8 +2,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.4/raphael-min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.9/justgage.min.js"></script>
 <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<!-- Set the IP address globally -->
+<script type="text/javascript">
+  const ipAddress = "192.168.0.69"; // Change this to your ESP32 IP address
+</script>
 <!-- Your Express.js Smart Home Dashboard HTML Template -->
-<div class="col col-md-4 mb-4">
+<div class="col col-md-4 mb-4" >
   <div class="card gradient-color shadow-lg border-radius card-text">
     <div class="card-body">
       <h5 class="card-title">Environment Information</h5>
@@ -67,11 +71,8 @@
   const socket = io();
 
   socket.on('temperature_humidity-update', function (data) {
-    
-    // Check if the IP address matches the expected value
-    const expectedIpAddress = "192.168.0.69";  // Change this to your desired IP
-    if (data.ip === expectedIpAddress) {
-      console.log('Received temperature_humidity update:', data);
+    if (data.ip === ipAddress) {
+      // console.log('Received temperature_humidity update:', data);
       updateEnvironmentInfo(data);
     }
   });

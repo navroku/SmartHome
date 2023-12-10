@@ -1,0 +1,87 @@
+<!-- deviceList.ejs -->
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<div class="modal fade" id="deviceListModal" tabindex="-1" aria-labelledby="deviceListModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content gradient-color border-radius">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="deviceListModalLabel">Device List</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body gradient-color">
+        <ul id="deviceList">
+          <!-- Device list will be populated dynamically using JavaScript -->
+        </ul>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ... (existing code) -->
+
+<script>
+  // Function to remove a device and update the list
+  function removeDevice(ip) {
+    // Add your logic to remove the device here
+    console.log(`Removing device with IP ${ip}`);
+
+    // Make a POST request to remove the device
+    $.post('/devices/remove', { ip }, function (response) {
+      if (response.success) {
+        console.log('Device removed successfully.');
+        // Refresh the device list after removal
+        socket.emit('request-device-list');
+      } else {
+        console.error('Error removing device:', response.error);
+      }
+    });
+  }
+
+  $(function () {
+    // Function to populate the device list in the modal
+    function populateDeviceList(devices) {
+      const deviceList = $('#deviceList');
+      deviceList.empty(); // Clear existing list
+
+      devices.forEach(device => {
+        const statusClass = device.status === 'unavailable' ? 'text-danger' : 'text-success';
+        const removeButton = device.status === 'unavailable' ? `<button class="btn btn-danger btn-sm" onclick="removeDevice('${device.ip}')">Remove</button>` : '';
+        deviceList.append(`<li data-ip="${device.ip}">${device.ip} - ${device.id} <span class="${statusClass}">${device.status}</span> ${removeButton}</li>`);
+      });
+    }
+
+    // Function to add a device to the card and close the modal
+    function addDeviceToCard(ip) {
+      // Add your logic to add the device to the card here
+      console.log(`Adding device with IP ${ip} to the card`);
+
+      // Close the modal
+      $('#deviceListModal').modal('hide');
+    }
+
+    // Connect to Socket.io server
+    const socket = io();
+
+    // Listen for the device-list-update event
+    socket.on('device-list-update', function (devices) {
+      populateDeviceList(devices);
+    });
+
+    // Make a GET request to retrieve the initial list of devices
+    socket.emit('request-device-list'); // Send a request to the server to get the initial device list
+
+    // Optionally, handle the server's response to the initial request
+    socket.on('initial-device-list', function (devices) {
+      populateDeviceList(devices);
+    });
+
+    $('#deviceListBtn').on('click', function () {
+      $('#deviceListModal').modal('show');
+    });
+  });
+</script>
+

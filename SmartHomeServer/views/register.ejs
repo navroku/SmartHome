@@ -1,40 +1,55 @@
 <!-- views/register.ejs -->
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - Smart Home</title>
-  <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-  <div class="container">
-    <h1>Register</h1>
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content gradient-color border-radius">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="registerModalLabel">Register</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body gradient-color">
+        <div class="container">
+          <h1>Register</h1>
 
-    <!-- Display success message if it exists -->
-    <% if (typeof successMessage !== 'undefined' && successMessage !== null) { %>
-        <p class="success-message"><%= successMessage %></p>
-      <% } %>
+          <!-- Display success message if it exists -->
+          <% if (typeof successMessage !== 'undefined' && successMessage !== null) { %>
+            <p class="success-message"><%= successMessage %></p>
+          <% } %>
 
-    <form action="/register" method="post">
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required>
+          <form action="/register" method="post">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
 
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
 
-      <label for="confirmPassword">Confirm Password:</label>
-      <input type="password" id="confirmPassword" name="confirmPassword" required>
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
 
-      <!-- Checkbox for isAdmin -->
-      <label for="isAdmin">Admin:</label>
-      <input type="checkbox" id="isAdmin" name="isAdmin">
+            <!-- Checkbox for isAdmin -->
+            <label for="isAdmin">Admin:</label>
+            <input type="checkbox" id="isAdmin" name="isAdmin">
 
-      <button type="submit">Register</button>
-    </form>
-    
-    <a href="/" class="home-button">Home</a>
+            <button type="submit">Register</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
   </div>
-</body>
-</html>
+</div>
+
+<!-- ... (existing code) -->
+
+<!-- Add this script in your existing script section or in an external script file -->
+
+<script>
+  $(function () {
+    // Open the register modal when the "Register" button in the navbar is clicked
+    $('#registerBtn').on('click', function () {
+      $('#registerModal').modal('show');
+    });
+  });
+</script>

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "devStart": "nodemon server.js",
+    "devStart": "nodemon --ignore devices.json server.js",
     "build:scss": "node-sass public/styles -o public/styles",
     "start": "node server.js"
   },
