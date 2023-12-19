@@ -3,11 +3,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.9/justgage.min.js"></script>
 <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 <!-- Set the IP address globally -->
-<script type="text/javascript">
-  const ipAddress = "192.168.0.69"; // Change this to your ESP32 IP address
-</script>
+
 <!-- Your Express.js Smart Home Dashboard HTML Template -->
-<div class="col col-md-4 mb-4" >
+<div class="col col-md-4 mb-4">
   <div class="card gradient-color shadow-lg border-radius card-text">
     <div class="card-body">
       <h5 class="card-title">Environment Information</h5>
@@ -17,86 +15,107 @@
         <strong>Temperature:</strong> <span id="temperatureValue">--</span> °C<br>
         <strong>Humidity:</strong> <span id="humidityValue">--</span> %
       </p>
+
+      <% if (status === 'unavailable') { %>
+        <p>Status: <span id="status-<%= ip %>" class="text-danger"><%= status %></span></p>
+      <% } else { %>
+        <p id="status-<%= ip %>" style="display: none;"><%= status %></p>
+        <p id="message-<%= ip %>"></p>
+      <% } %>
     </div>
   </div>
 </div>
 
 <!-- Include script for updating gauges -->
 <script>
-  // Function to update temperature gauge
-  function updateTemperatureGauge(value) {
-    temperatureGauge.refresh(value);
-    document.getElementById("temperatureValue").innerText = value.toFixed(2);
-  }
+  $(function () {
+    // Function to update temperature gauge
+    const ipAddress = "<%= ip %>"; // Change this to your ESP32 IP address
+    function updateTemperatureGauge(value) {
+      temperatureGauge.refresh(value);
+      document.getElementById("temperatureValue").innerText = value.toFixed(2);
+    }
 
-  // Function to update humidity gauge
-  function updateHumidityGauge(value) {
-    humidityGauge.refresh(value);
-    document.getElementById("humidityValue").innerText = value.toFixed(2);
-  }
+    // Function to update humidity gauge
+    function updateHumidityGauge(value) {
+      humidityGauge.refresh(value);
+      document.getElementById("humidityValue").innerText = value.toFixed(2);
+    }
 
-  // Initialize temperature gauge
-  var temperatureGauge = new JustGage({
-    id: "temperatureGauge",
-    value: 0,
-    min: -20,
-    max: 40,
-    title: "Temperature",
-    gaugeWidthScale: 0.5,
-    counter: true,
-    relativeGaugeSize: true,
-    levelColors: ["#990000"],
-    valueFontColor: "#9b9ca7", // Change this to your desired text color
-    valueFont: "10px Arial",
-    symbol: "°C", // Add the unit symbol
-  });
+    // Function to update status and message
+    function updateStatus(newStatus, newMessage) {
+      const statusElement = document.getElementById("status-" + ipAddress);
+      const messageElement = document.getElementById("message-" + ipAddress);
 
-  // Initialize humidity gauge
-  var humidityGauge = new JustGage({
-    id: "humidityGauge",
-    value: 0,
-    min: 0,
-    max: 100,
-    title: "Humidity",
-    gaugeWidthScale: 0.5,
-    counter: true,
-    relativeGaugeSize: true,
-    levelColors: ["#009999"],
-    valueFontColor: "#9b9ca7", // Change this to your desired text color
-    valueFont: "10px Arial",
-    symbol: "%", // Add the unit symbol
-  });
-  
-  // Socket.io connection to receive MQTT data
-  const socket = io();
+      if (statusElement && messageElement) {
+        statusElement.innerText = newStatus;
 
-  socket.on('temperature_humidity-update', function (data) {
-    if (data.ip === ipAddress) {
-      // console.log('Received temperature_humidity update:', data);
-      updateEnvironmentInfo(data);
+        if (newStatus === 'unavailable') {
+          messageElement.innerText = newMessage || 'Device is currently unavailable';
+          messageElement.classList.add('text-danger');
+        } else {
+          messageElement.innerText = '';
+          messageElement.classList.remove('text-danger');
+        }
+      }
+    }
+
+    // Initialize temperature gauge
+    var temperatureGauge = new JustGage({
+      id: "temperatureGauge",
+      value: 0,
+      min: -20,
+      max: 40,
+      title: "Temperature",
+      gaugeWidthScale: 0.5,
+      counter: true,
+      relativeGaugeSize: true,
+      levelColors: ["#990000"],
+      valueFontColor: "#9b9ca7", // Change this to your desired text color
+      valueFont: "10px Arial",
+      symbol: "°C", // Add the unit symbol
+    });
+
+    // Initialize humidity gauge
+    var humidityGauge = new JustGage({
+      id: "humidityGauge",
+      value: 0,
+      min: 0,
+      max: 100,
+      title: "Humidity",
+      gaugeWidthScale: 0.5,
+      counter: true,
+      relativeGaugeSize: true,
+      levelColors: ["#009999"],
+      valueFontColor: "#9b9ca7", // Change this to your desired text color
+      valueFont: "10px Arial",
+      symbol: "%", // Add the unit symbol
+    });
+    
+    // Socket.io connection to receive MQTT data
+    const socket = io();
+
+    socket.on('temperature_humidity-update', function (data) {
+      if (data.ip === ipAddress) {
+        console.log('Received temperature_humidity update:', data);
+        updateEnvironmentInfo(data);
+      }
+    });
+
+    function updateEnvironmentInfo(data) {
+      // Implement logic to update the gauges with the received data
+      const temperature = data.temperature || 0;
+      const humidity = data.humidity || 0;
+      const status = data.status || 'unknown'; // Replace 'unknown' with a default value
+      const message = data.message || ''; // Add the message property to your data
+
+      // Example usage
+      updateTemperatureGauge(temperature);
+      updateHumidityGauge(humidity);
+      updateStatus(status, message);
+
+      // Emit a 'device-list-update' event to notify other parts of the application about the status change
+      socket.emit('device-list-update', [{ ip: ipAddress, status, message }]);
     }
   });
-
-  function updateEnvironmentInfo(data) {
-    // Implement logic to update the gauges with the received data
-    const temperature = data.temperature || 0;
-    const humidity = data.humidity || 0;
-
-    // Example usage
-    updateTemperatureGauge(temperature);
-    updateHumidityGauge(humidity);
-  }
-
-  // Function to update temperature gauge
-  function updateTemperatureGauge(value) {
-    temperatureGauge.refresh(value);
-    document.getElementById("temperatureValue").innerText = value.toFixed(2);
-  }
-
-  // Function to update humidity gauge
-  function updateHumidityGauge(value) {
-    humidityGauge.refresh(value);
-    document.getElementById("humidityValue").innerText = value.toFixed(2);
-  }
-
 </script>

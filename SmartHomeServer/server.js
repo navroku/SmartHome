@@ -30,8 +30,6 @@ app.use(require('./routes/login'));
 app.use(require('./routes/register'));
 app.use(require('./routes/index'));
 app.use(require('./routes/logout'));
-// Mount the deviceListRouter at the specified path
-app.use('/devices', deviceListRouter);
 
 // Start HTTP server
 const server = http.createServer(app);
@@ -42,8 +40,10 @@ socketIOHandler.initializeSocketIO(server);
 
 // Use the MQTT handler for all routes in the devices folder
 app.use('/devices/controllable-led', controllableLedRouter);
-app.use('/device-list', deviceListRouter);
 app.use('/devices/temperature_humidity', temperatureHumidityRouter);
+
+
+app.use('/devices', deviceListRouter);
 
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

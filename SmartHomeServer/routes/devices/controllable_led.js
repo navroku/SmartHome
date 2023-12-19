@@ -35,12 +35,15 @@ mqttClient.mqttClient.on('message', (topic, message) => {
 });
 
 function updateColorInfo(data) {
+  const id = data.id;
   const ip = data.ip;
   const color = data.color;
 
   // Update the current color information for the specific IP
-  currentColors[ip] = { ip, color };
-  console.log('Current color:', currentColors);
+  if (id === 'controllable_led'){
+    currentColors[ip] = { ip, color };
+  }
+
   
   // Emit the update to all connected clients using Socket.io
   socketIOHandler.emitColorUpdate(currentColors);

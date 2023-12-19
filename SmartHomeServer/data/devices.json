@@ -1,0 +1,20 @@
+[
+  {
+    "id": "temperature_humidity",
+    "ip": "192.168.0.195",
+    "temperature": 27.29999924,
+    "humidity": 50.70000076,
+    "cardType": "temperature_humidity.ejs",
+    "lastReceivedTime": 1703024029709,
+    "status": "unavailable"
+  },
+  {
+    "id": "controllable_led",
+    "ip": "192.168.0.69",
+    "temperature": 29.48602298215257,
+    "humidity": 42.275193368840846,
+    "cardType": "soilmoisture.ejs",
+    "lastReceivedTime": 1703024827885,
+    "status": "available"
+  }
+]

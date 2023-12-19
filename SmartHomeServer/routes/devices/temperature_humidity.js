@@ -24,7 +24,6 @@ function updateEnvironmentInfo(data) {
 
   // Update the latest environment information
   latestEnvironmentInfo[ip] = { ip, temperature, humidity };
-
   // Emit the update to all connected clients using Socket.io
   socketIOHandler.emitTemperatureHumidityUpdate({
     ip,

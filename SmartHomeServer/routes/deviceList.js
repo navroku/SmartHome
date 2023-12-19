@@ -1,9 +1,10 @@
+// deviceList.js
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const mqttHandler = require('./mqttHandler'); // Import mqttHandler
-const socketIOHandler = require('./socketioHandler'); // Import socketIOHandler
+const mqttHandler = require('./mqttHandler');
+const socketIOHandler = require('./socketioHandler');
 
 const devicesFilePath = path.join(__dirname, '..', 'data', 'devices.json');
 
@@ -22,14 +23,16 @@ function readDevices() {
 function saveDevices(devices) {
   try {
     fs.writeFileSync(devicesFilePath, JSON.stringify(devices, null, 2), 'utf-8');
-    console.log('Devices saved successfully.');
 
     // Emit the updated device list to all connected clients
     socketIOHandler.emitDeviceListUpdate(devices);
+
+    console.log('Devices successfully saved to devices.json:', devices);
   } catch (error) {
     console.error('Error saving devices:', error);
   }
 }
+
 
 // Function to update device status
 function updateDeviceStatus(devices) {
@@ -39,15 +42,27 @@ function updateDeviceStatus(devices) {
     const lastReceivedTime = device.lastReceivedTime || 0;
     const timeDifference = currentTime - lastReceivedTime;
 
-    if (timeDifference > 20000) {
+    if (timeDifference > 10000) {
       device.status = 'unavailable';
     } else {
       device.status = 'available';
+    }
+
+    // Check if the device has a cardType property and retain it during status update
+    if (device.cardType) {
+      device.cardType = device.cardType;
     }
   });
 
   saveDevices(devices);
 }
+
+
+// Timer to update device status every 5 seconds
+setInterval(() => {
+  const devices = readDevices();
+  updateDeviceStatus(devices);
+}, 5000);
 
 // Initialize MQTT subscriptions
 mqttHandler.mqttClient.subscribe('esp32/device/list');
@@ -55,75 +70,125 @@ mqttHandler.mqttClient.subscribe('esp32/device/list');
 // Handle MQTT messages
 mqttHandler.mqttClient.on('message', (topic, message) => {
   if (topic === 'esp32/device/list') {
-    const { id, ip } = JSON.parse(message);
+    console.log('Received message:', JSON.parse(message));
+    const deviceInfo = JSON.parse(message);
     const devices = readDevices();
+    const existingDeviceIndex = devices.findIndex(device => device.ip === deviceInfo.ip);
 
-    // Check if the device already exists
-    const existingDevice = devices.find(device => device.ip === ip);
-
-    if (existingDevice) {
-      // Update last received time for existing device
-      existingDevice.lastReceivedTime = Date.now();
+    if (existingDeviceIndex !== -1) {
+      // Copy the cardType property from the existing device to the new device
+      deviceInfo.cardType = devices[existingDeviceIndex].cardType;
+      devices[existingDeviceIndex] = { ...deviceInfo, lastReceivedTime: Date.now() };
     } else {
-      // Add the new device
-      devices.push({ id, ip, lastReceivedTime: Date.now(), status: 'available' });
+      devices.push({ ...deviceInfo, lastReceivedTime: Date.now(), status: 'available' });
     }
 
-    // Update device status
     updateDeviceStatus(devices);
   }
 });
 
-// POST route to add a device
-router.post('/', (req, res) => {
-  const { id, ip } = req.body;
 
-  // Validate input
-  if (!id || !ip) {
+// GET route to retrieve the initial list of devices
+router.get('/', (req, res) => {
+  const devices = readDevices();
+  res.json(devices);
+});
+
+// POST route to add or update a device
+router.post('/', (req, res) => {
+  const deviceInfo = req.body;
+
+  if (!deviceInfo.id || !deviceInfo.ip) {
     return res.status(400).json({ error: 'Both id and ip are required.' });
   }
 
-  // Read existing devices
   const devices = readDevices();
+  const existingDeviceIndex = devices.findIndex(device => device.ip === deviceInfo.ip);
 
-  // Check if the device already exists
-  const existingDevice = devices.find(device => device.ip === ip);
-
-  if (existingDevice) {
-    // Update last received time for existing device
-    existingDevice.lastReceivedTime = Date.now();
+  if (existingDeviceIndex !== -1) {
+    devices[existingDeviceIndex] = { ...deviceInfo, lastReceivedTime: Date.now() };
   } else {
-    // Add the new device
-    devices.push({ id, ip, lastReceivedTime: Date.now(), status: 'available' });
+    devices.push({ ...deviceInfo, lastReceivedTime: Date.now(), status: 'available' });
   }
 
-  // Update device status
   updateDeviceStatus(devices);
 
-  res.json({ success: true, message: 'Device added successfully.' });
+  res.json({ success: true, message: 'Device added or updated successfully.' });
 });
 
 // POST route to remove an unavailable device
 router.post('/remove', (req, res) => {
   const { ip } = req.body;
-
-  // Read existing devices
   const devices = readDevices();
-
-  // Find the device by IP
   const deviceIndex = devices.findIndex(device => device.ip === ip);
 
   if (deviceIndex !== -1) {
-    // Remove the device
     devices.splice(deviceIndex, 1);
-
-    // Save the updated devices
     saveDevices(devices);
-
     res.json({ success: true, message: 'Device removed successfully.' });
   } else {
     res.status(404).json({ error: 'Device not found.' });
   }
 });
 
+router.get('/cards', async (req, res) => {
+  const cardsFolderPath = path.join(__dirname, '..', 'views', 'cards');
+
+  try {
+    const files = await fs.promises.readdir(cardsFolderPath);
+    console.log('Files:', files);
+    res.json(files);
+  } catch (err) {
+    console.error('Error reading cards folder:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Add this route to your server-side code
+router.post('/update-card-type', (req, res) => {
+  const { ip, cardType } = req.body;
+  console.log('Received request to update card type:', req.body);
+
+  // Add a log to check the devices before updating
+  const devicesBeforeUpdate = readDevices();
+  console.log('Devices before update:', devicesBeforeUpdate);
+
+  if (!ip || !cardType) {
+    return res.status(400).json({ error: 'Both IP and cardType are required.' });
+  }
+
+  const devices = readDevices();
+  const deviceIndex = devices.findIndex(device => device.ip === ip);
+
+  if (deviceIndex !== -1) {
+    devices[deviceIndex].cardType = cardType; // Add the cardType property to your device object
+
+    // Add a log to check the devices after updating
+    console.log('Devices after update:', devices);
+
+    saveDevices(devices);
+    res.json({ success: true, message: 'Card type updated successfully.' });
+  } else {
+    res.status(404).json({ error: 'Device not found.' });
+  }
+});
+
+
+
+// GET route to retrieve the information of a specific device by IP
+router.get('/:ip', (req, res) => {
+  const ip = req.params.ip;
+  const devices = readDevices();
+  const device = devices.find(device => device.ip === ip);
+
+  if (device) {
+    // Exclude "lastReceivedTime" and "status" from the response
+    const { lastReceivedTime, status, ...deviceInfo } = device;
+    res.json(deviceInfo);
+  } else {
+    res.status(404).json({ error: 'Device not found.' });
+  }
+});
+
 module.exports = router;
+module.exports.readDevices = readDevices;
