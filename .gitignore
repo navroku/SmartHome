@@ -1,2 +1,3 @@
 node_modules
-~/.SmartHomeServer/data/devices.json
+.env
+~/./data/devices.json
