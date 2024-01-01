@@ -10,14 +10,7 @@ if (result.error) {
   process.env.DB_USER = DB_USER;
   process.env.DB_PASSWORD = DB_PASSWORD;
   process.env.DB_DATABASE = DB_DATABASE;
-
-  // Now you can use process.env.DB_HOST, process.env.DB_USER, etc.
-  console.log('DB_HOST:', process.env.DB_HOST);
-  console.log('DB_USER:', process.env.DB_USER);
-  console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
-  console.log('DB_DATABASE:', process.env.DB_DATABASE);
 }
-
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
@@ -28,6 +21,5 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
 });
-
 
 module.exports = pool;
