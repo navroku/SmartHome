@@ -11,10 +11,10 @@
   {
     "id": "controllable_led",
     "ip": "192.168.0.69",
-    "temperature": 29.48602298215257,
-    "humidity": 42.275193368840846,
+    "temperature": 21.082323998391722,
+    "humidity": 47.27670903769947,
     "cardType": "soilmoisture.ejs",
-    "lastReceivedTime": 1703024827885,
+    "lastReceivedTime": 1703024847885,
     "status": "available"
   }
 ]
