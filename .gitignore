@@ -1,3 +1,4 @@
 node_modules
 SmartHomeServer/.env
 ./SmartHomeServer/data/devices.json
+SmartHomeServer/data/devices.json
