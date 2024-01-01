@@ -11,6 +11,7 @@
     <!-- Bootstrap Icons CSS -->
     <link rel="stylesheet" href="font/bootstrap-icons.css">
     <link rel="stylesheet" href="styles/Main.css">
+    <link rel="icon" type="image/x-icon" href="/icons/favicon.ico">
   </head>
 <body>
   <!-- Navigation Bar -->
@@ -21,6 +22,7 @@
   <section class="gradient-color m-4 border-radius shadow-lg border-0 p-4">
     <%- include ('deviceList.ejs') %>
     <%- include ('register.ejs') %>
+    <%- include ('usersList.ejs') %>
     <div class="row" id="cardContainer">
       <!-- Loop through devices and include card templates -->
       <% devices.forEach(device => { %>
@@ -37,8 +39,6 @@
   <script>
     // Update the UI when a 'device-list-update' event is received
     socket.on('device-list-update', function (devices) {
-      console.log('Received device list update index.ejs:', devices);
-
       // Implement logic to update the UI with the new device list
       devices.forEach(device => {
         const statusElement = document.getElementById(`status-${device.ip}`);

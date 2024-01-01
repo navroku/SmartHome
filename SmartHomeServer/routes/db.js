@@ -1,15 +1,33 @@
 // routes/db.js
 const mysql = require('mysql2/promise');
-const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } = process.env;
+const result = require('dotenv').config();
+
+if (result.error) {
+  console.error('Error parsing .env file:', result.error);
+} else {
+  const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } = result.parsed;
+  process.env.DB_HOST = DB_HOST;
+  process.env.DB_USER = DB_USER;
+  process.env.DB_PASSWORD = DB_PASSWORD;
+  process.env.DB_DATABASE = DB_DATABASE;
+
+  // Now you can use process.env.DB_HOST, process.env.DB_USER, etc.
+  console.log('DB_HOST:', process.env.DB_HOST);
+  console.log('DB_USER:', process.env.DB_USER);
+  console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+  console.log('DB_DATABASE:', process.env.DB_DATABASE);
+}
+
 
 const pool = mysql.createPool({
-  host: DB_HOST,
-  user: DB_USER,
-  password: DB_PASSWORD,
-  database: DB_DATABASE,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,     
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
 });
+
 
 module.exports = pool;

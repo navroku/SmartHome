@@ -1,0 +1,111 @@
+<!-- usersList.ejs -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content gradient-color border-radius">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body gradient-color">
+        <p id="confirmationMessage"></p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-danger" id="confirmBtn">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="usersListModal" tabindex="-1" aria-labelledby="usersListModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content gradient-color border-radius">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="usersListModalLabel">User List</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body gradient-color">
+        <ul id="usersList" class="list-group">
+          <!-- User list will be populated dynamically using JavaScript -->
+        </ul>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function removeUser(userId, username) {
+    // Show confirmation modal
+    $('#confirmationMessage').text(`Are you sure you want to remove "${username}"?`);
+    $('#confirmBtn').off('click').on('click', function() {
+      // Make a POST request to remove the user
+      $.post('/users/remove', { userId }, function (response) {
+        if (response.success) {
+          console.log('User removed successfully.');
+          // Refresh the user list after removal
+          requestUserList();
+        } else {
+          console.error('Error removing user:', response.error);
+        }
+      });
+      // Close confirmation modal
+      $('#confirmationModal').modal('hide');
+    });
+
+    // Show confirmation modal
+    $('#confirmationModal').modal('show');
+  }
+
+  // Function to request the user list from the server
+  function requestUserList() {
+    $.get('/users', function (users) {
+      populateUsersList(users);
+    });
+  }
+
+  // Function to populate the user list in the modal
+  function populateUsersList(users) {
+    const usersList = $('#usersList');
+    usersList.empty(); // Clear existing list
+
+    users.forEach(user => {
+      const isAdminCheck = user.isAdmin ? '| ADMIN' : '| Standart user'; // Checkmark or cross
+      const removeButton = `<button class="btn btn-danger btn-sm float-end" onclick="removeUser('${user.id}', '${user.username}')">Delete</button>`;
+
+      const listItem = `<li class="list-group-item align-items-center border-0 gradient-color card-text" data-user-id="${user.id}">
+                          ${user.username}  ${isAdminCheck} ${removeButton}
+                        </li>`;
+      usersList.append(listItem);
+    });
+  }
+
+  // Listen for the confirmation modal events
+  $('#confirmationModal').on('show.bs.modal', function () {
+    $('#usersListModal').modal('hide'); // Hide users list modal when confirmation modal is shown
+  });
+
+  $('#confirmationModal').on('hidden.bs.modal', function () {
+    $('#usersListModal').modal('show'); // Show users list modal when confirmation modal is hidden
+  });
+
+  $(document).ready(function() {
+    // Listen for the users-list-update event
+    const socket = io();
+    socket.on('users-list-update', function () {
+      requestUserList();
+  });
+
+    // Make a GET request to retrieve the initial list of users when the page loads
+    requestUserList();
+    $('#usersListBtn').on('click', function () {
+      // Show the device list modal
+        $.get('/users', function (users) {
+        populateUsersList(users);
+      });
+      $('#usersListModal').modal('show');
+    });
+  });
+</script>

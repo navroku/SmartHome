@@ -3,10 +3,12 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
+const dotenv = require('dotenv');
 const ejs = require('ejs-mate');
 const http = require('http');
 const mqttHandler = require('./routes/mqttHandler');
 const deviceListRouter = require('./routes/deviceList');
+const usersRouter = require('./routes/users');
 const temperatureHumidityRouter = require('./routes/devices/temperature_humidity');
 const controllableLedRouter = require('./routes/devices/controllable_led');
 const socketIOHandler = require('./routes/socketioHandler');
@@ -44,6 +46,8 @@ app.use('/devices/temperature_humidity', temperatureHumidityRouter);
 
 
 app.use('/devices', deviceListRouter);
+app.use('/users', usersRouter);
+
 
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

@@ -2,18 +2,24 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top gradient-color rounded-3 border-radius shadow-lg m-4">
   <div class="container-fluid">
-    <a class="navbar-brand">Welcome home <strong><%= user.username %></strong></a>
+    <a class="navbar-brand">Welcome home, <strong><%= user.username %></strong></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-link active" aria-current="page" href="#">Home</a>
-        <a class="nav-link" id="deviceListBtn" href="#">Device List</a>
-        <a class="nav-link" id="registerBtn" href="#">Register</a> <!-- Added button for register modal -->
-        <a class="nav-link" href="/logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-          <i class="bi bi-box-arrow-right"></i> Log out
-        </a>
+        <% if (user.isAdmin) { %>
+          <a class="nav-link" id="registerBtn" href="javascript:void(0)">Register</a>
+          <a class="nav-link" id="deviceListBtn" href="javascript:void(0)">Device List</a>
+          <!-- Users List button added to the navbar -->
+          <a class="nav-link" id="usersListBtn" href="javascript:void(0)">Users List</a>
+        <% } %>
+        <!-- Add a form element with the id 'logout-form' -->
+        <form id="logout-form" action="/logout" method="POST">
+          <a class="nav-link" href="javascript:void(0)" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            <i class="bi bi-box-arrow-right"></i> Log out
+          </a>
+        </form>
       </div>
     </div>
   </div>

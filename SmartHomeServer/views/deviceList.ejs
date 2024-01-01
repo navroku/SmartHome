@@ -2,24 +2,7 @@
 <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-<div class="modal fade" id="deviceListModal" tabindex="-1" aria-labelledby="deviceListModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content gradient-color border-radius">
-      <div class="modal-header border-0">
-        <h5 class="modal-title" id="deviceListModalLabel">Device List</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body gradient-color">
-        <ul id="deviceList" class="list-group">
-          <!-- Device list will be populated dynamically using JavaScript -->
-        </ul>
-      </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <!-- Configuration Modal -->
 <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
@@ -51,30 +34,52 @@
   </div>
 </div>
 
+
+<div class="modal fade" id="deviceListModal" tabindex="-1" aria-labelledby="deviceListModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content gradient-color border-radius">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="deviceListModalLabel">Device List</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body gradient-color">
+        <ul id="deviceList" class="list-group">
+          <!-- Device list will be populated dynamically using JavaScript -->
+        </ul>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script>
   $(document).ready(function() {
     $('#configDropdown').on('change', function() {
       console.log('configDropdown value has changed to:', $(this).val());
     });
       // Event listener for the "Save" button
-  $('#saveConfig').on('click', function () {
-    const selectedCardType = $('#configDropdown').val();
-    const ip = getCurrentDeviceIP(); // Implement a function to get the current device IP
-    console.log('ip:', ip);
-    if (selectedCardType && ip) {
-      // Make a POST request to update the devices.json file
-      $.post('/devices/update-card-type', { ip, cardType: selectedCardType }, function (response) {
-        if (response.success) {
-          console.log('Card type updated successfully.');
-          // Close the configuration modal
-          $('#configModal').modal('hide');
-        } else {
-          console.error('Error updating card type:', response.error);
-          // Handle error if needed
-        }
-      });
-    }
-  });
+      $('#saveConfig').on('click', function () {
+  const selectedCardType = $('#configDropdown').val();
+  const ip = getCurrentDeviceIP(); // Implement a function to get the current device IP
+  console.log('ip:', ip);
+  if (selectedCardType && ip) {
+    // Make a POST request to update the devices.json file
+    $.post('/devices/update-card-type', { ip, cardType: selectedCardType }, function (response) {
+      if (response.success) {
+        console.log('Card type updated successfully.');
+        // Reload the entire page
+        location.reload(true);
+      } else {
+        console.error('Error updating card type:', response.error);
+        // Handle error if needed
+      }
+    });
+  }
+});
+
 
   // ... (existing code)
 
@@ -87,6 +92,7 @@
     return $('#configDeviceInfo').data('ip');
   }
   });
+  
   // Function to remove a device and update the list
   function removeDevice(ip) {
     // Add your logic to remove the device here
@@ -98,6 +104,7 @@
         console.log('Device removed successfully.');
         // Refresh the device list after removal
         socket.emit('request-device-list');
+        location.reload(true);
       } else {
         console.error('Error removing device:', response.error);
       }
@@ -188,21 +195,23 @@
 
   // Function to populate the device list in the modal
   function populateDeviceList(devices) {
-    const deviceList = $('#deviceList');
-    deviceList.empty(); // Clear existing list
+  const deviceList = $('#deviceList');
+  const isAdmin = $('#isAdmin').data('is-admin') === 'true'; // Convert string to boolean
 
-    devices.forEach(device => {
-      const statusClass = device.status === 'unavailable' ? 'text-danger' : 'text-success';
-      const removeButton = device.status === 'unavailable' ? `<button class="btn btn-danger btn-sm" onclick="removeDevice('${device.ip}')">Remove</button>` : '';
-      const configButton = device.status === 'available' ? `<button class="btn btn-primary btn-sm float-end" onclick="openDeviceConfig('${device.ip}')">Configure</button>` : '';
+  deviceList.empty(); // Clear existing list
 
-      const listItem = `<li class="list-group-item align-items-center border-0 gradient-color card-text" data-ip="${device.ip}">
-                          ${device.ip} - ${device.id} <span class="${statusClass}">${device.status}</span> ${removeButton}
-                          ${configButton}
-                        </li>`;
-      deviceList.append(listItem);
-    });
-  }
+  devices.forEach(device => {
+    const statusClass = device.status === 'unavailable' ? 'text-danger' : 'text-success';
+    const removeButton = device.status === 'unavailable' ? `<button class="btn btn-danger btn-sm" onclick="removeDevice('${device.ip}')">Remove</button>`: '';
+    const configButton = device.status === 'available' ? `<button class="btn btn-primary btn-sm float-end" onclick="openDeviceConfig('${device.ip}')">Configure</button>` : '';
+    
+    const listItem = `<li class="list-group-item align-items-center border-0 gradient-color card-text" data-ip="${device.ip}">
+                        ${device.ip} - ${device.id} <span class="${statusClass}">${device.status}</span> ${removeButton}
+                        ${configButton}
+                      </li>`;
+    deviceList.append(listItem);
+  });
+}
 
   // Connect to Socket.io server
   const socket = io();

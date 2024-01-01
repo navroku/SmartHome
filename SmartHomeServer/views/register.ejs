@@ -4,33 +4,33 @@
   <div class="modal-dialog">
     <div class="modal-content gradient-color border-radius">
       <div class="modal-header border-0">
-        <h5 class="modal-title" id="registerModalLabel">Register</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="registerModalLabel">Register a new user</h5>
       </div>
       <div class="modal-body gradient-color">
         <div class="container">
-          <h1>Register</h1>
-
           <!-- Display success message if it exists -->
           <% if (typeof successMessage !== 'undefined' && successMessage !== null) { %>
             <p class="success-message"><%= successMessage %></p>
           <% } %>
 
-          <form action="/register" method="post">
+          <!-- Display error messages if they exist -->
+          <div id="error-container" class="text-danger"></div>
+
+          <form id="registerForm" method="post">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+            <input type="text" class="form-control mb-2" id="username" name="username" value="<%= typeof errorMessage !== 'undefined' && errorMessage !== null ? username : '' %>" required>
 
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" class="form-control mb-2" id="password" name="password" required>
 
             <label for="confirmPassword">Confirm Password:</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" required>
-
-            <!-- Checkbox for isAdmin -->
-            <label for="isAdmin">Admin:</label>
-            <input type="checkbox" id="isAdmin" name="isAdmin">
-
-            <button type="submit">Register</button>
+            <input type="password" class="form-control mb-2" id="confirmPassword" name="confirmPassword" required>
+            <!-- make user as admin -->
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" id="isAdmin" name="isAdmin">
+              <label class="form-check-label" for="isAdmin">Set as administrator</label>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2 mx-auto float-end">Register</button>
           </form>
         </div>
       </div>
@@ -41,13 +41,53 @@
   </div>
 </div>
 
-<!-- ... (existing code) -->
-
-<!-- Add this script in your existing script section or in an external script file -->
-
 <script>
   $(function () {
-    // Open the register modal when the "Register" button in the navbar is clicked
+    $('#registerForm').submit(function (e) {
+      e.preventDefault();
+
+      // Store the entered username
+      const username = $('#username').val();
+
+      $.ajax({
+        type: 'POST',
+        url: '/register',
+        data: $('#registerForm').serialize(),
+        success: function (response) {
+          // Handle the response (you may want to show success or error messages)
+          console.log(response);
+
+          // Clear form fields
+          $('#registerForm').trigger('reset');
+
+          // Display success message if it exists
+          if (response.success) {
+            $('.success-message').html(response.message);
+            $('#error-container').empty(); // Clear any existing error messages
+            $('#error-container').html('<p class="success-message text-success">' + response.message + '</p>');
+            $('#username').val(username);
+          } else {
+            // Display error message and re-populate the username field
+            $('#error-container').html('<p class="error-message text-danger">' + response.message + '</p>');
+            $('#username').val(username);
+          }
+        },
+        error: function (error) {
+          // Handle the error
+          console.error(error);
+
+          // Parse JSON error response and display the error message within the modal
+          try {
+            const errorMessage = JSON.parse(error.responseText).message;
+            $('#error-container').html('<p class="error-message">' + errorMessage + '</p>');
+            $('#username').val(username);
+          } catch (parseError) {
+            console.error('Error parsing JSON:', parseError);
+          }
+        },
+      });
+    });
+
     $('#registerBtn').on('click', function () {
       $('#registerModal').modal('show');
     });

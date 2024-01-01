@@ -31,10 +31,21 @@ function updateEnvironmentInfo(data) {
     humidity,
   });
 }
-
+// Define a new endpoint for getting the latest color information
+router.get('/get-temperature-humidity', (req, res) => {
+  console.log('GET request received for environment information:', latestEnvironmentInfo);
+  // Return the latest color information stored in currentColors
+  res.json(latestEnvironmentInfo);
+});
 // Export a function to initialize Socket.io with the server
 router.initializeSocketIO = function (httpServer) {
   socketIOHandler.initializeSocketIO(httpServer);
+  // Emit the latest environment information to the newly connected client
+  socketIOHandler.emitTemperatureHumidityUpdate({
+    ip,
+    temperature,
+    humidity,
+  });
 };
 
 module.exports = router;

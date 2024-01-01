@@ -2,19 +2,18 @@
   {
     "id": "temperature_humidity",
     "ip": "192.168.0.195",
-    "temperature": 27.29999924,
-    "humidity": 50.70000076,
+    "temperature": 25,
+    "humidity": 27,
     "cardType": "temperature_humidity.ejs",
-    "lastReceivedTime": 1703024029709,
-    "status": "unavailable"
+    "lastReceivedTime": 1704152201854,
+    "status": "available"
   },
   {
-    "id": "controllable_led",
+    "id": "temperature_humidity",
     "ip": "192.168.0.69",
-    "temperature": 21.082323998391722,
-    "humidity": 47.27670903769947,
-    "cardType": "soilmoisture.ejs",
-    "lastReceivedTime": 1703024847885,
+    "temperature": 27.744966099325143,
+    "humidity": 45.15062345081732,
+    "lastReceivedTime": 1704152202980,
     "status": "available"
   }
 ]

@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const mqttHandler = require('./mqttHandler');
 const socketIOHandler = require('./socketioHandler');
+const { isAdmin } = require('./auth');
 
 const devicesFilePath = path.join(__dirname, '..', 'data', 'devices.json');
 
@@ -117,7 +118,7 @@ router.post('/', (req, res) => {
 });
 
 // POST route to remove an unavailable device
-router.post('/remove', (req, res) => {
+router.post('/remove', isAdmin, (req, res) => {
   const { ip } = req.body;
   const devices = readDevices();
   const deviceIndex = devices.findIndex(device => device.ip === ip);
@@ -145,7 +146,7 @@ router.get('/cards', async (req, res) => {
 });
 
 // Add this route to your server-side code
-router.post('/update-card-type', (req, res) => {
+router.post('/update-card-type', isAdmin, (req, res) => {
   const { ip, cardType } = req.body;
   console.log('Received request to update card type:', req.body);
 
@@ -176,7 +177,7 @@ router.post('/update-card-type', (req, res) => {
 
 
 // GET route to retrieve the information of a specific device by IP
-router.get('/:ip', (req, res) => {
+router.get('/:ip', isAdmin, (req, res) => {
   const ip = req.params.ip;
   const devices = readDevices();
   const device = devices.find(device => device.ip === ip);

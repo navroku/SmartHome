@@ -51,6 +51,15 @@
           Set Color
         </button>
       </p>
+      <% if (status === 'unavailable') { %>
+        <p>Status: <span id="status-<%= ip %>" class="text-danger"><%= status %></span></p>
+      <% } else { %>
+        <p id="status-<%= ip %>" style="display: none;"><%= status %></p>
+        <p id="message-<%= ip %>"></p>
+      <% } %>
+      <% if (user.isAdmin) { %>
+        <button class="btn btn-danger btn-sm" onclick="removeDevice('<%= ip %>')" location.reload(true);>Remove</button>
+      <% } %>
     </div>
   </div>
 </div>
@@ -90,19 +99,16 @@
 
 <script type="text/javascript">
   $(function () {
-    // Get the IP address of the card from the data-ip attribute
-    // Declare cardIpAddress at a wider scope
-    let cardIpAddress;
+    const ipAddress = "<%= ip %>";
     const socket = io();
 
     socket.on('connect', () => {
       console.log('Socket.io connected');
-      cardIpAddress = document.querySelector('.card[data-ip="' + data.ip + '"]').getAttribute('data-ip');
       // Make a GET request to retrieve the latest color information
       $.get("/devices/controllable-led/get-color", function (data) {
         console.log('Received color information from server:', data);
-        // Filter the data based on the cardIpAddress
-        const filteredData = data[cardIpAddress];
+        // Filter the data based on the ipAddress
+        const filteredData = data[ipAddress];
         if (filteredData) {
           colorUpdate(filteredData);
         }
@@ -115,11 +121,8 @@
 
     // Function to handle the 'color-update' event
     function colorUpdate(data) {
-      // Get the IP address of the card from the data-ip attribute
-      const cardIpAddress = document.querySelector('.card[data-ip="' + data.ip + '"]').getAttribute('data-ip');
-      console
       // Check if the received IP matches the expected IP
-      if (cardIpAddress === data.ip) {
+      if (ipAddress === data.ip) {
         const color = `rgb(${data.color.r}, ${data.color.g}, ${data.color.b})`;
         updateColorPreview(color);
       }
@@ -136,8 +139,8 @@
       if (Array.isArray(data)) {
         data.forEach(colorUpdate);
       } else {
-        // Filter the data based on the cardIpAddress
-        const filteredData = data[cardIpAddress];
+        // Filter the data based on the ipAddress
+        const filteredData = data[ipAddress];
         if (filteredData) {
           colorUpdate(filteredData);
         }
@@ -156,7 +159,7 @@
           g: rgbValues[1],
           b: rgbValues[2],
         },
-        ip: cardIpAddress,
+        ip: ipAddress,
       };
 
       console.log("Generated Message:", message);

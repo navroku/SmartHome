@@ -1,27 +1,29 @@
+<!-- temperature_humidity.ejs -->
+
 <!-- Include JustGage library and Raphael library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.4/raphael-min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.9/justgage.min.js"></script>
 <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 <!-- Set the IP address globally -->
-
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <!-- Your Express.js Smart Home Dashboard HTML Template -->
 <div class="col col-md-4 mb-4">
   <div class="card gradient-color shadow-lg border-radius card-text">
     <div class="card-body">
       <h5 class="card-title">Environment Information</h5>
-      <div id="temperatureGauge"></div>
-      <div id="humidityGauge"></div>
+      <div id="temperatureGauge-<%= ip %>"></div>
+      <div id="humidityGauge-<%= ip %>"></div>
       <p class="card-text">
-        <strong>Temperature:</strong> <span id="temperatureValue">--</span> °C<br>
-        <strong>Humidity:</strong> <span id="humidityValue">--</span> %
+        <strong>Temperature:</strong> <span id="temperatureValue-<%= ip %>">--</span> °C<br>
+        <strong>Humidity:</strong> <span id="humidityValue-<%= ip %>">--</span> %
       </p>
-
-      <% if (status === 'unavailable') { %>
-        <p>Status: <span id="status-<%= ip %>" class="text-danger"><%= status %></span></p>
-      <% } else { %>
-        <p id="status-<%= ip %>" style="display: none;"><%= status %></p>
-        <p id="message-<%= ip %>"></p>
+      <p id="status-<%= ip %>" style="display: none;"><%= status %></p>
+      <p id="message-<%= ip %>"></p>
+      <% if (user.isAdmin) { %>
+        <button class="btn btn-danger btn-sm" onclick="removeDevice('<%= ip %>')" location.reload(true);>Remove</button>
       <% } %>
+      
     </div>
   </div>
 </div>
@@ -33,13 +35,13 @@
     const ipAddress = "<%= ip %>"; // Change this to your ESP32 IP address
     function updateTemperatureGauge(value) {
       temperatureGauge.refresh(value);
-      document.getElementById("temperatureValue").innerText = value.toFixed(2);
+      document.getElementById("temperatureValue-<%= ip %>").innerText = value.toFixed(2);
     }
 
     // Function to update humidity gauge
     function updateHumidityGauge(value) {
       humidityGauge.refresh(value);
-      document.getElementById("humidityValue").innerText = value.toFixed(2);
+      document.getElementById("humidityValue-<%= ip %>").innerText = value.toFixed(2);
     }
 
     // Function to update status and message
@@ -62,7 +64,7 @@
 
     // Initialize temperature gauge
     var temperatureGauge = new JustGage({
-      id: "temperatureGauge",
+      id: "temperatureGauge-<%= ip %>",
       value: 0,
       min: -20,
       max: 40,
@@ -78,7 +80,7 @@
 
     // Initialize humidity gauge
     var humidityGauge = new JustGage({
-      id: "humidityGauge",
+      id: "humidityGauge-<%= ip %>",
       value: 0,
       min: 0,
       max: 100,
@@ -94,10 +96,18 @@
     
     // Socket.io connection to receive MQTT data
     const socket = io();
-
+    socket.on('connect', () => {
+      console.log('Socket.io connected (temperature_humidity)');
+      // Make a GET request to retrieve the latest color information
+      $.get("/devices/temperature_humidity/get-temperature-humidity", function (data) {
+        const filteredData = data[ipAddress];
+        if (filteredData) {
+          updateEnvironmentInfo(filteredData);
+        }
+      });
+    });
     socket.on('temperature_humidity-update', function (data) {
       if (data.ip === ipAddress) {
-        console.log('Received temperature_humidity update:', data);
         updateEnvironmentInfo(data);
       }
     });
@@ -113,9 +123,6 @@
       updateTemperatureGauge(temperature);
       updateHumidityGauge(humidity);
       updateStatus(status, message);
-
-      // Emit a 'device-list-update' event to notify other parts of the application about the status change
-      socket.emit('device-list-update', [{ ip: ipAddress, status, message }]);
     }
   });
 </script>
