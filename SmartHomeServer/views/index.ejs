@@ -14,11 +14,7 @@
     <link rel="icon" type="image/x-icon" href="/icons/favicon.ico">
   </head>
 <body>
-  <!-- Navigation Bar -->
   <%- include ('navbar.ejs') %>
-  <!-- Include the device list modal -->
-  
-  <!-- Main Container Box -->
   <section class="gradient-color m-4 border-radius shadow-lg border-0 p-4">
     <%- include ('deviceList.ejs') %>
     <%- include ('register.ejs') %>
@@ -37,9 +33,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
   <script>
-    // Update the UI when a 'device-list-update' event is received
     socket.on('device-list-update', function (devices) {
-      // Implement logic to update the UI with the new device list
+      // Loop through devices and update the status
       devices.forEach(device => {
         const statusElement = document.getElementById(`status-${device.ip}`);
         if (statusElement) {
@@ -50,13 +45,13 @@
             const messageElement = document.getElementById(`message-${device.ip}`);
             if (messageElement) {
               messageElement.innerText = device.message || 'Device is currently unavailable';
-              messageElement.classList.add('text-danger'); // Add a text-danger class for styling
+              messageElement.classList.add('text-danger'); 
             }
           } else {
             const messageElement = document.getElementById(`message-${device.ip}`);
             if (messageElement) {
               messageElement.innerText = '';
-              messageElement.classList.remove('text-danger'); // Remove text-danger class for styling
+              messageElement.classList.remove('text-danger'); 
             }
           }
         }
@@ -65,15 +60,3 @@
   </script>
 </body>
 </html>
-      <!-- First Card -->
-      <!-- <div class="col-md-4 mb-4">
-        <div class="card gradient-color shadow-lg border-radius">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <a href="#" class="card-link">Card link</a>
-            <a href="#" class="card-link">Another link</a>
-          </div>
-        </div>
-      </div> -->

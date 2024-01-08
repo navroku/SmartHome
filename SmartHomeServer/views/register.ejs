@@ -18,18 +18,19 @@
 
           <form id="registerForm" method="post">
             <label for="username">Username:</label>
-            <input type="text" class="form-control mb-2" id="username" name="username" value="<%= typeof errorMessage !== 'undefined' && errorMessage !== null ? username : '' %>" required>
+            <input type="text" class="form-control mb-2" id="username" name="username" autocomplete="off" value="<%= typeof errorMessage !== 'undefined' && errorMessage !== null ? username : '' %>" required>
 
             <label for="password">Password:</label>
-            <input type="password" class="form-control mb-2" id="password" name="password" required>
+            <input type="password" class="form-control mb-2" id="password" name="password" autocomplete="off" required>
 
             <label for="confirmPassword">Confirm Password:</label>
-            <input type="password" class="form-control mb-2" id="confirmPassword" name="confirmPassword" required>
+            <input type="password" class="form-control mb-2" id="confirmPassword" name="confirmPassword" autocomplete="off" required>
             <!-- make user as admin -->
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" id="isAdmin" name="isAdmin">
               <label class="form-check-label" for="isAdmin">Set as administrator</label>
             </div>
+            
             <button type="submit" class="btn btn-primary mt-2 mx-auto float-end">Register</button>
           </form>
         </div>

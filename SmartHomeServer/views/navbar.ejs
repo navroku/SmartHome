@@ -11,10 +11,8 @@
         <% if (user.isAdmin) { %>
           <a class="nav-link" id="registerBtn" href="javascript:void(0)">Register</a>
           <a class="nav-link" id="deviceListBtn" href="javascript:void(0)">Device List</a>
-          <!-- Users List button added to the navbar -->
-          <a class="nav-link" id="usersListBtn" href="javascript:void(0)">Users List</a>
+          <a class="nav-link" id="usersListBtn" href="javascript:void(0)">User List</a>
         <% } %>
-        <!-- Add a form element with the id 'logout-form' -->
         <form id="logout-form" action="/logout" method="POST">
           <a class="nav-link" href="javascript:void(0)" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
             <i class="bi bi-box-arrow-right"></i> Log out

@@ -1,16 +1,16 @@
 <!-- usersList.ejs -->
+
 <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content gradient-color border-radius">
       <div class="modal-header border-0">
         <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body gradient-color">
         <p id="confirmationMessage"></p>
       </div>
       <div class="modal-footer border-0">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelBtn">No</button>
         <button type="button" class="btn btn-danger" id="confirmBtn">Yes</button>
       </div>
     </div>
@@ -22,7 +22,6 @@
     <div class="modal-content gradient-color border-radius">
       <div class="modal-header border-0">
         <h5 class="modal-title" id="usersListModalLabel">User List</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body gradient-color">
         <ul id="usersList" class="list-group">
@@ -38,6 +37,7 @@
 
 <script>
   function removeUser(userId, username) {
+    $('#usersListModal').modal('hide'); // Hide users list modal
     // Show confirmation modal
     $('#confirmationMessage').text(`Are you sure you want to remove "${username}"?`);
     $('#confirmBtn').off('click').on('click', function() {
@@ -51,8 +51,16 @@
           console.error('Error removing user:', response.error);
         }
       });
+      $('#usersListModal').modal('show');
       // Close confirmation modal
       $('#confirmationModal').modal('hide');
+      
+    });
+    $('#cancelBtn').off('click').on('click', function() {
+      $('#usersListModal').modal('show');
+      // Close confirmation modal
+      $('#confirmationModal').modal('hide');
+      
     });
 
     // Show confirmation modal
@@ -72,7 +80,7 @@
     usersList.empty(); // Clear existing list
 
     users.forEach(user => {
-      const isAdminCheck = user.isAdmin ? '| ADMIN' : '| Standart user'; // Checkmark or cross
+      const isAdminCheck = user.isAdmin ? '| ADMIN' : '| Standart user'; 
       const removeButton = `<button class="btn btn-danger btn-sm float-end" onclick="removeUser('${user.id}', '${user.username}')">Delete</button>`;
 
       const listItem = `<li class="list-group-item align-items-center border-0 gradient-color card-text" data-user-id="${user.id}">
@@ -82,14 +90,6 @@
     });
   }
 
-  // Listen for the confirmation modal events
-  $('#confirmationModal').on('show.bs.modal', function () {
-    $('#usersListModal').modal('hide'); // Hide users list modal when confirmation modal is shown
-  });
-
-  $('#confirmationModal').on('hidden.bs.modal', function () {
-    $('#usersListModal').modal('show'); // Show users list modal when confirmation modal is hidden
-  });
 
   $(document).ready(function() {
     // Listen for the users-list-update event

@@ -32,7 +32,7 @@
         <span class="color-preview-alpha"></span>
       </p>
       <p class="user-select-none">
-        Currently color:
+        Current color:
         <span class="currently-set-color-box"></span>
         <span class="currently-set-color-text"></span>
         <span class="currently-set-color-alpha"></span>
@@ -119,23 +119,21 @@
       console.log('Socket.io disconnected');
     });
 
-    // Function to handle the 'color-update' event
+    // Function to update the color preview
     function colorUpdate(data) {
-      // Check if the received IP matches the expected IP
       if (ipAddress === data.ip) {
         const color = `rgb(${data.color.r}, ${data.color.g}, ${data.color.b})`;
         updateColorPreview(color);
       }
     }
+
+    // Function to update the color preview
     function updateColorPreview(color) {
-      // Your implementation of updating color preview goes here
-      // For example, you can update the background color of an element
       $(".currently-set-color-box").css("background-color", color);
-      // Display RGB values
       $(".currently-set-color-text").text(color);
     }
+    // Listen for the color-update event
     socket.on('color-update', function (data) {
-      // Check if the data is an array
       if (Array.isArray(data)) {
         data.forEach(colorUpdate);
       } else {
@@ -178,7 +176,6 @@
       });
     }
 
-    // Turn off button event
     $("#turnOffBtn").on("click", function () {
       const offColor = "rgb(0, 0, 0)";
       $(".color-preview-box").css("background-color", offColor);
@@ -189,7 +186,6 @@
     $("#color-block").on("colorchange", function () {
       const color = $(this).wheelColorPicker("value");
 
-      // Update preview color
       $(".color-preview-box").css("background-color", color);
 
       // Format RGB values with spaces

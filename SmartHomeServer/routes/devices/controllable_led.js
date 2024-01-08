@@ -8,6 +8,39 @@ let currentColors = {}; // Store the current color information for each IP
 
 router.use(express.json());
 
+mqttClient.mqttClient.subscribe('esp32/device/list');
+
+mqttClient.mqttClient.on('message', (topic, message) => {
+  if (topic === 'esp32/device/list') {
+    const data = JSON.parse(message.toString());
+
+    if (typeof data.color !== 'undefined') {
+      updateColorInfo(data);
+    }
+  }
+});
+
+// Function to update the color information for a device
+function updateColorInfo(data) {
+  const id = data.id;
+  const ip = data.ip;
+  const color = data.color;
+
+  if (id === 'controllable_led'){
+    currentColors[ip] = { ip, color };
+  }
+
+  // Emit the update to all connected clients using Socket.io
+  socketIOHandler.emitColorUpdate(currentColors);
+}
+
+// Function to get the color information for a device
+router.get('/get-color', (req, res) => {
+  console.log('GET request received for color information:', currentColors);
+  res.json(currentColors);
+});
+
+// Function to set the color information for a device
 router.post('/set-color', (req, res) => {
   const color = req.body.color || {};
   const ipAddress = req.body.ip;
@@ -25,35 +58,6 @@ router.post('/set-color', (req, res) => {
   res.send('Color set successfully');
 });
 
-mqttClient.mqttClient.subscribe('esp32/device/list');
-
-mqttClient.mqttClient.on('message', (topic, message) => {
-  if (topic === 'esp32/device/list') {
-    const data = JSON.parse(message.toString());
-    updateColorInfo(data);
-  }
-});
-
-function updateColorInfo(data) {
-  const id = data.id;
-  const ip = data.ip;
-  const color = data.color;
-
-  // Update the current color information for the specific IP
-  if (id === 'controllable_led'){
-    currentColors[ip] = { ip, color };
-  }
-
-  
-  // Emit the update to all connected clients using Socket.io
-  socketIOHandler.emitColorUpdate(currentColors);
-}
-// Define a new endpoint for getting the latest color information
-router.get('/get-color', (req, res) => {
-  console.log('GET request received for color information:', currentColors);
-  // Return the latest color information stored in currentColors
-  res.json(currentColors);
-});
 // Export a function to initialize Socket.io with the server
 router.initializeSocketIO = function (httpServer) {
   socketIOHandler.initializeSocketIO(httpServer);

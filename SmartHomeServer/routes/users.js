@@ -4,7 +4,7 @@ const router = express.Router();
 const pool = require('./db');
 const { isAdmin } = require('./auth');
 
-// Sample route that performs a database operation
+// Function to fetch all users
 router.get('/', async (req, res) => {
   let connection;
   try {
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   } finally {
     if (connection) {
-      connection.release(); // Release the connection back to the pool
+      connection.release();
     }
   }
 });
@@ -35,11 +35,9 @@ router.post('/remove', isAdmin, async (req, res) => {
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   } finally {
     if (connection) {
-      connection.release(); // Release the connection back to the pool
+      connection.release();
     }
   }
 });
-
-// Additional routes and logic can be added here
 
 module.exports = router;

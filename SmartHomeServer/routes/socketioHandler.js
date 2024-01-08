@@ -1,7 +1,7 @@
 // socketIOHandler.js
 const socketIO = require('socket.io');
 
-let io; // Socket.io instance
+let io; 
 
 function initializeSocketIO(httpServer) {
   io = socketIO(httpServer);

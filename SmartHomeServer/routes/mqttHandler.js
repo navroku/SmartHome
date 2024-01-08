@@ -1,12 +1,12 @@
+// routes/mqttHandler.js
 const mqtt = require('mqtt');
-const mqttBroker = 'mqtt://broker.hivemq.com'; // Replace with your MQTT broker URL
-const mqttPort = 1883; // Replace with your MQTT broker port
+const mqttBroker = 'mqtt://broker.hivemq.com'; 
+const mqttPort = 1883; 
 
 const mqttClient = mqtt.connect(`${mqttBroker}:${mqttPort}`);
 
 mqttClient.on('connect', () => {
     console.log('Connected to MQTT broker');
-    // Set up any initial subscriptions or logic here
 });
 
 module.exports = {

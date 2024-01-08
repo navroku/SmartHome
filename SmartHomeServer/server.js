@@ -35,12 +35,10 @@ app.use(require('./routes/logout'));
 
 // Start HTTP server
 const server = http.createServer(app);
-
-// Initialize Socket.io for the controllable LED and temperature/humidity routers
+// Initialize Socket.io with the HTTP server
 socketIOHandler.initializeSocketIO(server);
 
 
-// Use the MQTT handler for all routes in the devices folder
 app.use('/devices/controllable-led', controllableLedRouter);
 app.use('/devices/temperature_humidity', temperatureHumidityRouter);
 

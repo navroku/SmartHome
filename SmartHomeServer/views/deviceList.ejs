@@ -13,20 +13,16 @@
       </div>
       <div class="modal-body gradient-color">
         <div id="configDeviceInfo">
-          <!-- Display device information dynamically here -->
-
+          <!-- Device information will be populated dynamically using JavaScript -->
         </div>
         <br>
         <label for="configDropdown" class="form-label">Select Card Type:</label>
           <select class="form-select" id="configDropdown">
-
+            <!-- Card types will be populated dynamically using JavaScript -->
         </select>
       </div>
       <div class="modal-footer border-0 d-flex justify-content-between">
-        <!-- Move the "Back" button to the left -->
         <button type="button" class="btn btn-secondary" id="backToDeviceList">Back</button>
-        <!-- Add a Save button or other actions if needed -->
-         <!-- Add a Save button to save the selected card type -->
         <button type="button" class="btn btn-primary float-end" id="saveConfig" href="/">Save</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
@@ -60,49 +56,34 @@
     $('#configDropdown').on('change', function() {
       console.log('configDropdown value has changed to:', $(this).val());
     });
-      // Event listener for the "Save" button
-      $('#saveConfig').on('click', function () {
-  const selectedCardType = $('#configDropdown').val();
-  const ip = getCurrentDeviceIP(); // Implement a function to get the current device IP
-  console.log('ip:', ip);
-  if (selectedCardType && ip) {
-    // Make a POST request to update the devices.json file
-    $.post('/devices/update-card-type', { ip, cardType: selectedCardType }, function (response) {
-      if (response.success) {
-        console.log('Card type updated successfully.');
-        // Reload the entire page
-        location.reload(true);
-      } else {
-        console.error('Error updating card type:', response.error);
-        // Handle error if needed
+    $('#saveConfig').on('click', function () {
+      const selectedCardType = $('#configDropdown').val();
+      const ip = getCurrentDeviceIP();
+      console.log('ip:', ip);
+      if (selectedCardType && ip) {
+        // Make a POST request to update the devices.json file
+        $.post('/devices/update-card-type', { ip, cardType: selectedCardType }, function (response) {
+          if (response.success) {
+            console.log('Card type updated successfully.');
+            location.reload(true);
+          } else {
+            console.error('Error updating card type:', response.error);
+          }
+        });
       }
     });
-  }
-});
 
-
-  // ... (existing code)
-
-  // Function to get the current device IP
-  function getCurrentDeviceIP() {
-    // Implement logic to get the current device IP
-    // For example, you might have stored it when opening the configuration modal
-    // Make sure to adapt this function based on your application structure
-    // This is just a placeholder, you need to implement it based on your structure
-    return $('#configDeviceInfo').data('ip');
-  }
+    function getCurrentDeviceIP() {
+      return $('#configDeviceInfo').data('ip');
+    }
   });
   
   // Function to remove a device and update the list
   function removeDevice(ip) {
-    // Add your logic to remove the device here
     console.log(`Removing device with IP ${ip}`);
-
-    // Make a POST request to remove the device
     $.post('/devices/remove', { ip }, function (response) {
       if (response.success) {
         console.log('Device removed successfully.');
-        // Refresh the device list after removal
         socket.emit('request-device-list');
         location.reload(true);
       } else {
@@ -111,20 +92,13 @@
     });
   }
 
- // Function to open device configuration
+  // Function to open the configuration modal for a device
  function openDeviceConfig(ip) {
-    // Add your logic to open the configuration page for the selected device
     console.log(`Opening configuration for device with IP ${ip}`);
 
-    // Request device information for the selected IP
     $.get(`/devices/${ip}`, function (deviceInfo) {
-      // Populate device information in the configuration modal
       populateConfigDeviceInfo(deviceInfo);
-
-      // Fetch available card types and populate the dropdown
       fetchCardTypes();
-      
-      // Open the configuration modal
       $('#deviceListModal').modal('hide');
       $('#configModal').modal('show');
     });
@@ -133,11 +107,11 @@
   // Function to fetch available card types
   function fetchCardTypes() {
     $.get(`/devices/cards`, function (cardTypes) {
-      console.log('Card types received:', cardTypes); // Log the card types for debugging
       populateCardDropdown(cardTypes);
     });
   }
 
+  // Function to populate the card type dropdown in the configuration modal
   function populateCardDropdown(cardTypes) {
     $(document).ready(function() {
       const configDropdown = $('#configDropdown');
@@ -148,11 +122,10 @@
       }
 
       console.log('Clearing configDropdown options');
-      configDropdown.empty(); // Clear existing options
+      configDropdown.empty(); 
 
       console.log('Populating configDropdown with card types:', cardTypes);
       cardTypes.forEach(cardType => {
-        console.log('Adding card type:', cardType); // Log the card type for debugging
         const option = `<option value="${cardType}">${cardType}</option>`;
         configDropdown.append(option);
       });
@@ -164,12 +137,10 @@
     const configDeviceInfo = $('#configDeviceInfo');
     configDeviceInfo.empty(); // Clear existing content
 
-    // Set the IP as a data attribute on the configDeviceInfo element
     configDeviceInfo.data('ip', deviceInfo.ip);
 
     // Iterate through the device information properties and display them
     for (const [key, value] of Object.entries(deviceInfo)) {
-      // Skip "lastReceivedTime" and "status" properties
       if (key !== 'lastReceivedTime' && key !== 'status') {
         const formattedValue = key === 'id' ? `<strong>${value}</strong>` : value;
         const infoItem = `<div><code>${key}:</code> ${formattedValue}</div>`;
@@ -179,9 +150,8 @@
   }
 
 
-  // Function to handle the Back button in the configuration modal
+
   $('#backToDeviceList').on('click', function () {
-    // Close the configuration modal and open the device list modal
     $('#configModal').modal('hide');
     $('#deviceListModal').modal('show');
   });
@@ -195,23 +165,23 @@
 
   // Function to populate the device list in the modal
   function populateDeviceList(devices) {
-  const deviceList = $('#deviceList');
-  const isAdmin = $('#isAdmin').data('is-admin') === 'true'; // Convert string to boolean
+    const deviceList = $('#deviceList');
+    const isAdmin = $('#isAdmin').data('is-admin') === 'true';
 
-  deviceList.empty(); // Clear existing list
+    deviceList.empty();
 
-  devices.forEach(device => {
-    const statusClass = device.status === 'unavailable' ? 'text-danger' : 'text-success';
-    const removeButton = device.status === 'unavailable' ? `<button class="btn btn-danger btn-sm" onclick="removeDevice('${device.ip}')">Remove</button>`: '';
-    const configButton = device.status === 'available' ? `<button class="btn btn-primary btn-sm float-end" onclick="openDeviceConfig('${device.ip}')">Configure</button>` : '';
-    
-    const listItem = `<li class="list-group-item align-items-center border-0 gradient-color card-text" data-ip="${device.ip}">
-                        ${device.ip} - ${device.id} <span class="${statusClass}">${device.status}</span> ${removeButton}
-                        ${configButton}
-                      </li>`;
-    deviceList.append(listItem);
-  });
-}
+    devices.forEach(device => {
+      const statusClass = device.status === 'unavailable' ? 'text-danger' : 'text-success';
+      const removeButton = device.status === 'unavailable' ? `<button class="btn btn-danger btn-sm" onclick="removeDevice('${device.ip}')">Remove</button>`: '';
+      const configButton = device.status === 'available' ? `<button class="btn btn-primary btn-sm float-end" onclick="openDeviceConfig('${device.ip}')">Configure</button>` : '';
+      
+      const listItem = `<li class="list-group-item align-items-center border-0 gradient-color card-text" data-ip="${device.ip}">
+                          ${device.ip} - ${device.id} <span class="${statusClass}">${device.status}</span> ${removeButton}
+                          ${configButton}
+                        </li>`;
+      deviceList.append(listItem);
+    });
+  }
 
   // Connect to Socket.io server
   const socket = io();
@@ -221,11 +191,9 @@
     populateDeviceList(devices);
   });
 
-  // Make a GET request to retrieve the initial list of devices when the page loads
   requestDeviceList();
 
   $('#deviceListBtn').on('click', function () {
-    // Show the device list modal
     $('#deviceListModal').modal('show');
   });
 </script>

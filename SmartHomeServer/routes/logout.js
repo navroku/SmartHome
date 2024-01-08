@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 
+// Destroy the session to log the user out
 router.post('/logout', (req, res) => {
-  // Destroy the session to log the user out
   req.session.destroy(err => {
     if (err) {
       console.error('Error destroying session:', err);

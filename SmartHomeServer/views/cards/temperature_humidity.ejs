@@ -4,10 +4,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.4/raphael-min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.9/justgage.min.js"></script>
 <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
-<!-- Set the IP address globally -->
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<!-- Your Express.js Smart Home Dashboard HTML Template -->
 <div class="col col-md-4 mb-4">
   <div class="card gradient-color shadow-lg border-radius card-text">
     <div class="card-body">
@@ -28,11 +26,10 @@
   </div>
 </div>
 
-<!-- Include script for updating gauges -->
 <script>
   $(function () {
     // Function to update temperature gauge
-    const ipAddress = "<%= ip %>"; // Change this to your ESP32 IP address
+    const ipAddress = "<%= ip %>"; // IP address of the device
     function updateTemperatureGauge(value) {
       temperatureGauge.refresh(value);
       document.getElementById("temperatureValue-<%= ip %>").innerText = value.toFixed(2);
@@ -73,9 +70,9 @@
       counter: true,
       relativeGaugeSize: true,
       levelColors: ["#990000"],
-      valueFontColor: "#9b9ca7", // Change this to your desired text color
+      valueFontColor: "#9b9ca7", 
       valueFont: "10px Arial",
-      symbol: "°C", // Add the unit symbol
+      symbol: "°C", 
     });
 
     // Initialize humidity gauge
@@ -89,12 +86,11 @@
       counter: true,
       relativeGaugeSize: true,
       levelColors: ["#009999"],
-      valueFontColor: "#9b9ca7", // Change this to your desired text color
+      valueFontColor: "#9b9ca7", 
       valueFont: "10px Arial",
-      symbol: "%", // Add the unit symbol
+      symbol: "%", 
     });
     
-    // Socket.io connection to receive MQTT data
     const socket = io();
     socket.on('connect', () => {
       console.log('Socket.io connected (temperature_humidity)');
@@ -106,6 +102,7 @@
         }
       });
     });
+    // Listen for the temperature_humidity-update event
     socket.on('temperature_humidity-update', function (data) {
       if (data.ip === ipAddress) {
         updateEnvironmentInfo(data);
@@ -113,16 +110,13 @@
     });
 
     function updateEnvironmentInfo(data) {
-      // Implement logic to update the gauges with the received data
       const temperature = data.temperature || 0;
       const humidity = data.humidity || 0;
-      const status = data.status || 'unknown'; // Replace 'unknown' with a default value
-      const message = data.message || ''; // Add the message property to your data
+      const status = data.status || 'unknown'; 
+      const message = data.message || ''; 
 
-      // Example usage
       updateTemperatureGauge(temperature);
       updateHumidityGauge(humidity);
-      updateStatus(status, message);
     }
   });
 </script>

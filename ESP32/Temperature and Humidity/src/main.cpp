@@ -13,14 +13,16 @@ const char* mqttBroker = "broker.hivemq.com";
 const int mqttPort = 1883;
 const char* presenceTopic = "esp32/device/list";
 
-#define DHTPIN 33 // Replace with your actual pin configuration for DHT22 sensor
-#define DHTTYPE DHT22 // DHT 22 (AM2302)
+// Temperature and humidity sensor
+#define DHTPIN 33 
+#define DHTTYPE DHT22 
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
 unsigned long lastPublish = 0;
 
+// Initialize DHT sensor.
 DHT dht22(DHTPIN, DHTTYPE);
 
 float humidity, temperature;
@@ -76,6 +78,7 @@ void connectToMqtt() {
   }
 }
 
+// Function to publish device presence
 void publishPresence() {
     // Read temperature and humidity
   temperature = dht22.readTemperature(); 
@@ -97,8 +100,6 @@ void publishPresence() {
     serializeJson(doc, payload);
     client.publish(presenceTopic, payload.c_str());
   }
-  
-  
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {

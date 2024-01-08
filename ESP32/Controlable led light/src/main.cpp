@@ -114,7 +114,7 @@ void handleLedControl(String message) {
 
 
 
-
+// Callback function for MQTT subscription
 void callback(char* topic, byte* payload, unsigned int length) {
   String message = "";
   for (int i = 0; i < length; i++) {

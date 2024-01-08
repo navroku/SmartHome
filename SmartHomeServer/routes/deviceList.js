@@ -48,8 +48,6 @@ function updateDeviceStatus(devices) {
     } else {
       device.status = 'available';
     }
-
-    // Check if the device has a cardType property and retain it during status update
     if (device.cardType) {
       device.cardType = device.cardType;
     }
@@ -77,7 +75,6 @@ mqttHandler.mqttClient.on('message', (topic, message) => {
     const existingDeviceIndex = devices.findIndex(device => device.ip === deviceInfo.ip);
 
     if (existingDeviceIndex !== -1) {
-      // Copy the cardType property from the existing device to the new device
       deviceInfo.cardType = devices[existingDeviceIndex].cardType;
       devices[existingDeviceIndex] = { ...deviceInfo, lastReceivedTime: Date.now() };
     } else {
@@ -95,29 +92,9 @@ router.get('/', (req, res) => {
   res.json(devices);
 });
 
-// POST route to add or update a device
-router.post('/', (req, res) => {
-  const deviceInfo = req.body;
 
-  if (!deviceInfo.id || !deviceInfo.ip) {
-    return res.status(400).json({ error: 'Both id and ip are required.' });
-  }
 
-  const devices = readDevices();
-  const existingDeviceIndex = devices.findIndex(device => device.ip === deviceInfo.ip);
-
-  if (existingDeviceIndex !== -1) {
-    devices[existingDeviceIndex] = { ...deviceInfo, lastReceivedTime: Date.now() };
-  } else {
-    devices.push({ ...deviceInfo, lastReceivedTime: Date.now(), status: 'available' });
-  }
-
-  updateDeviceStatus(devices);
-
-  res.json({ success: true, message: 'Device added or updated successfully.' });
-});
-
-// POST route to remove an unavailable device
+// POST route to remove a device and update the list
 router.post('/remove', isAdmin, (req, res) => {
   const { ip } = req.body;
   const devices = readDevices();
@@ -132,6 +109,8 @@ router.post('/remove', isAdmin, (req, res) => {
   }
 });
 
+
+// GET route to retrieve the list of available cards
 router.get('/cards', async (req, res) => {
   const cardsFolderPath = path.join(__dirname, '..', 'views', 'cards');
 
@@ -145,15 +124,10 @@ router.get('/cards', async (req, res) => {
   }
 });
 
-// Add this route to your server-side code
+// POST route to update the card type of a device
 router.post('/update-card-type', isAdmin, (req, res) => {
   const { ip, cardType } = req.body;
-  console.log('Received request to update card type:', req.body);
-
-  // Add a log to check the devices before updating
   const devicesBeforeUpdate = readDevices();
-  console.log('Devices before update:', devicesBeforeUpdate);
-
   if (!ip || !cardType) {
     return res.status(400).json({ error: 'Both IP and cardType are required.' });
   }
@@ -162,10 +136,7 @@ router.post('/update-card-type', isAdmin, (req, res) => {
   const deviceIndex = devices.findIndex(device => device.ip === ip);
 
   if (deviceIndex !== -1) {
-    devices[deviceIndex].cardType = cardType; // Add the cardType property to your device object
-
-    // Add a log to check the devices after updating
-    console.log('Devices after update:', devices);
+    devices[deviceIndex].cardType = cardType; 
 
     saveDevices(devices);
     res.json({ success: true, message: 'Card type updated successfully.' });

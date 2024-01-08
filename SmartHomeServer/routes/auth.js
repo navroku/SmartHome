@@ -13,9 +13,9 @@ async function comparePasswords(password, hashedPassword) {
 function isAdmin(req, res, next) {
   // Check if the user is logged in and is an admin
   if (req.session.user && req.session.user.isAdmin === 1) {
-    return next(); // Continue to the next middleware or route
+    return next(); // User is logged in and is an admin, so continue with the request
   } else {
-    res.redirect('/'); // Redirect to the home page if not logged in or not an admin
+    res.redirect('/');
   }
 }
 
