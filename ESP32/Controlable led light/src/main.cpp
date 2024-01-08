@@ -89,7 +89,7 @@ void handleLedControl(String message) {
   Serial.println("Received control message: " + message);
 
   // Parse the JSON message
-  DynamicJsonDocument doc(1024);  // Adjust the size as needed
+  DynamicJsonDocument doc(1024);
   deserializeJson(doc, message);
 
   // Extract color and IP

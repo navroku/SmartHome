@@ -103,7 +103,7 @@ void publishPresence() {
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
-  // This ESP32 only publishes data and does not handle incoming messages
+
 }
 
 void setMqttCallback() {

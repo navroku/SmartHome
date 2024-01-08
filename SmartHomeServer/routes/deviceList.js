@@ -27,8 +27,6 @@ function saveDevices(devices) {
 
     // Emit the updated device list to all connected clients
     socketIOHandler.emitDeviceListUpdate(devices);
-
-    console.log('Devices successfully saved to devices.json:', devices);
   } catch (error) {
     console.error('Error saving devices:', error);
   }
@@ -69,7 +67,6 @@ mqttHandler.mqttClient.subscribe('esp32/device/list');
 // Handle MQTT messages
 mqttHandler.mqttClient.on('message', (topic, message) => {
   if (topic === 'esp32/device/list') {
-    console.log('Received message:', JSON.parse(message));
     const deviceInfo = JSON.parse(message);
     const devices = readDevices();
     const existingDeviceIndex = devices.findIndex(device => device.ip === deviceInfo.ip);

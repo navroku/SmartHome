@@ -41,7 +41,6 @@ function updateEnvironmentInfo(data) {
 
 // Function to get the environment information for a device
 router.get('/get-temperature-humidity', (req, res) => {
-  console.log('GET request received for environment information:', latestEnvironmentInfo);
   // Return the latest color information stored in currentColors
   res.json(latestEnvironmentInfo);
 });

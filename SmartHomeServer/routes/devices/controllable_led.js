@@ -36,7 +36,6 @@ function updateColorInfo(data) {
 
 // Function to get the color information for a device
 router.get('/get-color', (req, res) => {
-  console.log('GET request received for color information:', currentColors);
   res.json(currentColors);
 });
 
@@ -52,8 +51,6 @@ router.post('/set-color', (req, res) => {
     },
     ip: ipAddress,
   };
-
-  console.log('Received Message:', message);
   mqttClient.publish('esp32/led/control', JSON.stringify(message));
   res.send('Color set successfully');
 });
